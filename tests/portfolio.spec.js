@@ -141,16 +141,16 @@ test('green expand controls open the correct project websites', async ({ page, c
   await page.goto('/');
   const controls = page.locator('.case-expand');
   await expect(controls).toHaveCount(3);
-  for (const [index, url] of ['https://fusionpiercings.app/', 'https://vigorfit.me/', 'https://aitsmena.com/'].entries()) {
+  for (const [index, url] of ['https://vigorfit.me/', 'https://aitsmena.com/', 'https://fusionpiercings.app/'].entries()) {
     await expect(controls.nth(index)).toHaveAttribute('href', url);
     await expect(controls.nth(index)).toHaveAttribute('target', '_blank');
   }
   // Fulfill the external navigation locally; do not depend on a client's live server.
-  await context.route('https://fusionpiercings.app/**', (route) => route.fulfill({ body: '<title>Project website</title>' }));
+  await context.route('https://vigorfit.me/**', (route) => route.fulfill({ body: '<title>Project website</title>' }));
   const popup = page.waitForEvent('popup');
   await controls.first().click();
   const project = await popup;
-  await expect(project).toHaveURL('https://fusionpiercings.app/');
+  await expect(project).toHaveURL('https://vigorfit.me/');
   await project.close();
 });
 
@@ -186,7 +186,7 @@ test('a project without a website can open an on-page case-study card', async ({
 test('all project case-study buttons open the shared card with correct scope and content', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.case-study-trigger')).toHaveCount(3);
-  for (const [index, name] of ['Fusion Piercings', 'Vigorfit', 'AITS'].entries()) {
+  for (const [index, name] of ['Vigorfit', 'AITS', 'Fusion Piercings'].entries()) {
     const trigger = page.locator('.case-study-trigger').nth(index);
     const row = trigger.locator('xpath=ancestor::article');
     await expect(row.getByRole('link', { name: 'VIEW PROJECT', exact: false })).toBeVisible();
@@ -222,7 +222,7 @@ test('all project case-study buttons open the shared card with correct scope and
 
 test('large case studies scroll internally, close from the fixed toolbar, and reset on reopen', async ({ page }) => {
   await page.goto('/');
-  const trigger = page.locator('.case-study-trigger').first();
+  const trigger = page.locator('[data-case-study="fusion"]');
   await trigger.click();
   const dialog = page.getByRole('dialog', { name: 'Fusion Piercings', exact: true });
   const pageScroll = await page.evaluate(() => scrollY);
