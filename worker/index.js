@@ -29,6 +29,13 @@ function validEndpoint(value) {
   } catch { return false; }
 }
 
+// Safe deployment diagnostics: report configuration states, never stored values.
+export function inquiryConfiguration(env) {
+  const receiverUrl = !env.GOOGLE_APPS_SCRIPT_URL ? 'missing' : validEndpoint(env.GOOGLE_APPS_SCRIPT_URL) ? 'valid' : 'invalid';
+  const webhookSecret = typeof env.LEAD_WEBHOOK_SECRET !== 'string' || !env.LEAD_WEBHOOK_SECRET ? 'missing' : env.LEAD_WEBHOOK_SECRET.length < 32 ? 'too_short' : 'configured';
+  return { ready: receiverUrl === 'valid' && webhookSecret === 'configured', checks: { receiverUrl, webhookSecret } };
+}
+
 export async function handleInquiry(request, env, fetcher = fetch) {
   if (request.method !== 'POST') return new Response(null, { status: 405, headers: { Allow: 'POST', 'Cache-Control': 'no-store' } });
   const origin = request.headers.get('origin');
@@ -39,7 +46,7 @@ export async function handleInquiry(request, env, fetcher = fetch) {
   catch (error) { return json({ error: error instanceof RangeError ? 'This inquiry is too large.' : 'Please check your form and try again.' }, error instanceof RangeError ? 413 : 400); }
   const { data, errors } = validateInquiry(input);
   if (errors) return json({ error: 'Please check the highlighted fields.', fields: errors }, 422);
-  if (!validEndpoint(env.GOOGLE_APPS_SCRIPT_URL) || typeof env.LEAD_WEBHOOK_SECRET !== 'string' || env.LEAD_WEBHOOK_SECRET.length < 32) {
+  if (!inquiryConfiguration(env).ready) {
     return json({ error: 'The inquiry service is temporarily unavailable. Please try again or contact us by email.' }, 503);
   }
   if (env.INQUIRY_RATE_LIMITER) {
@@ -63,6 +70,10 @@ export async function handleInquiry(request, env, fetcher = fetch) {
 
 export default {
   async fetch(request, env) {
+    if (new URL(request.url).pathname === '/api/inquiries/status') {
+      if (request.method !== 'GET') return new Response(null, { status: 405, headers: { Allow: 'GET', 'Cache-Control': 'no-store' } });
+      return json(inquiryConfiguration(env));
+    }
     if (new URL(request.url).pathname === '/api/inquiries') return handleInquiry(request, env);
     if (new URL(request.url).pathname.startsWith('/api/')) return json({ error: 'Not found.' }, 404);
     return env.ASSETS.fetch(request);

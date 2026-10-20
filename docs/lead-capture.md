@@ -76,3 +76,19 @@ If adding a question, update its sheet column and receiver mapping too. Common a
 Inquiries remain in browser memory while the page is open, including after a send failure. They are not placed in local storage or analytics. The receiver does not log form values or secrets. The form asks only for project information and contact permission; it does not subscribe visitors to marketing. Manage retention and access in the lead spreadsheet.
 
 The endpoint enforces same-origin requests, a body-size limit, branch validation, and a honeypot. For public traffic, configure a Cloudflare rate-limit/WAF rule for `POST /api/inquiries`; no CAPTCHA credentials are required by this implementation. The handler also supports an optional Workers rate-limit binding named `INQUIRY_RATE_LIMITER` if you choose to configure one. Same-origin checks and honeypots are not a substitute for traffic controls.
+
+## Troubleshooting the unavailable message
+
+Open `/api/inquiries/status` on the deployed website. This read-only endpoint does not contact Google, create a lead, or return the URL/secret. It returns only configuration states:
+
+```json
+{"ready":true,"checks":{"receiverUrl":"valid","webhookSecret":"configured"}}
+```
+
+- `receiverUrl: missing`: add `GOOGLE_APPS_SCRIPT_URL` to the Worker serving this website.
+- `receiverUrl: invalid`: use the complete `https://script.google.com/macros/s/.../exec` deployment URL, with no query string, surrounding quotes, or extra path segments.
+- `webhookSecret: missing`: add `LEAD_WEBHOOK_SECRET` as a runtime secret.
+- `webhookSecret: too_short`: set the same random secret of at least 32 characters in Cloudflare and Apps Script.
+- `ready: true` means the local configuration format is valid; it does not verify that Google authorizes the request or that both secrets match. Then submit the real form and check the sheet.
+
+Make changes on the Worker serving your actual domain, not another similarly named Worker or a preview environment. `keep_vars: true` in `wrangler.jsonc` preserves variables entered through the dashboard on future Wrangler deployments; it does not restore variables removed by an earlier deployment. Secrets still belong in secure runtime settings, not Git.

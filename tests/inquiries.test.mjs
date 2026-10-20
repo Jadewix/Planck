@@ -144,3 +144,26 @@ test('unsure project type is supported and only accepted schema fields survive',
   assert.deepEqual(result.data.answers, { guidance: 'Defining the features and scope' });
   assert.equal(result.data.arbitrary, undefined);
 });
+
+test('configuration diagnostics identify each failure without exposing stored values', async () => {
+  for (const [config, expected] of [
+    [{}, { ready: false, checks: { receiverUrl: 'missing', webhookSecret: 'missing' } }],
+    [{ ...env, GOOGLE_APPS_SCRIPT_URL: 'https://example.com/exec' }, { ready: false, checks: { receiverUrl: 'invalid', webhookSecret: 'configured' } }],
+    [{ ...env, LEAD_WEBHOOK_SECRET: 'short' }, { ready: false, checks: { receiverUrl: 'valid', webhookSecret: 'too_short' } }],
+    [env, { ready: true, checks: { receiverUrl: 'valid', webhookSecret: 'configured' } }],
+  ]) {
+    const response = await worker.fetch(new Request('https://planck.example/api/inquiries/status'), config);
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    const body = await response.text();
+    assert.equal(body.includes(secret), false);
+    assert.equal(body.includes('script.google.com'), false);
+    assert.deepEqual(JSON.parse(body), expected);
+  }
+});
+
+test('status endpoint is read-only and deployments retain dashboard variables', async () => {
+  const response = await worker.fetch(new Request('https://planck.example/api/inquiries/status', { method: 'POST' }), env);
+  assert.equal(response.status, 405);
+  assert.equal(JSON.parse(readFileSync(new URL('../wrangler.jsonc', import.meta.url), 'utf8')).keep_vars, true);
+});
