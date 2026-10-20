@@ -59,7 +59,7 @@ header { position: fixed; inset: 0 0 auto; z-index: 30; display: flex; justify-c
 .text-link:hover b { background: #efe2f6; color: #18121d; }
 .hero-bottom { position: absolute; bottom: 12px; left: var(--gutter); right: var(--gutter); color: #96909b; font-size: 8px; letter-spacing: 1.8px; }
 .hero-particles { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
-.hero-particles canvas { display: block; width: 100%; height: 100%; filter: drop-shadow(0 0 7px #f0deff60); }
+.hero-particles canvas { display: block; width: 100%; height: 100%; }
 .section { padding: clamp(85px, 12vh, 150px) var(--gutter); }
 .section-label { margin-bottom: 48px; display: flex; justify-content: space-between; gap: 20px; }
 h2, h3 { font-weight: 400; letter-spacing: -.055em; line-height: 1.08; }
@@ -520,7 +520,7 @@ header, .hero, .section, .work, .menu { padding-left: var(--gutter); padding-rig
 .hero > p { font-size: 23px; text-shadow: 0 0 12px #c8b9d126, 0 0 24px #b39dc714; }
 @media (min-width: 751px) { .hero > p { font-size: clamp(20px, calc(1.25vw + 8px), 23px); } }
 
-.hero-particles canvas { filter: drop-shadow(0 0 4px #e3ceff35); }
+.hero-particles canvas { filter: none; }
 
 .atmosphere-glow { animation: gradient-flow 18s ease-in-out infinite alternate; }
 .atmosphere::after { animation: gradient-haze-flow 23s ease-in-out infinite alternate; }

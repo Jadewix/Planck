@@ -53,11 +53,15 @@ export function initParticles() {
   let width = 0;
   let height = 0;
   let heroHeight = 0;
+  let textCenter = 0;
+  const headline = hero.querySelector('h1');
+  const subtitle = hero.querySelector(':scope > p');
   let visible = false;
   let frame = 0;
   let elapsed = 0;
   let previous = 0;
   let easedProgress = 0;
+  let syncProgress = true;
 
   function paint(time) {
     frame = 0;
@@ -68,9 +72,11 @@ export function initParticles() {
     const rect = hero.getBoundingClientRect();
     const targetProgress = Math.max(0, Math.min(1, -rect.top / (heroHeight * 1.25)));
     // Reach the full spread earlier, while smoothing wheel and touch input over time.
-    easedProgress = reduced.matches ? 0 : easedProgress + (targetProgress - easedProgress) * (1 - Math.exp(-step / 80));
+    easedProgress = reduced.matches ? 0 : syncProgress ? targetProgress : easedProgress + (targetProgress - easedProgress) * (1 - Math.exp(-step / 160));
+    syncProgress = false;
     const progress = easedProgress;
-    const angle = reduced.matches ? -.25 : elapsed * .00014 - .25;
+    // Keep the logo readable instead of flattening edge-on during a full turn.
+    const angle = reduced.matches ? -.25 : -.25 + Math.sin(elapsed * .00014) * .38;
     const tilt = reduced.matches ? -.1 : Math.sin(elapsed * .00021) * .18 - .1;
     const roll = reduced.matches ? 0 : Math.sin(elapsed * .00017) * .055;
     const cosTilt = Math.cos(tilt), sinTilt = Math.sin(tilt);
@@ -79,16 +85,13 @@ export function initParticles() {
     const sy = Math.sin(angle);
     const scale = width < 751 ? Math.min(width * .29, 145) : Math.min(width * .18, heroHeight * .33);
     const ox = width < 751 ? width * .64 : width * .78;
-    const headlineRect = hero.querySelector('h1').getBoundingClientRect();
-    const subtitleRect = hero.querySelector(':scope > p').getBoundingClientRect();
-    const textCenter = (headlineRect.top + subtitleRect.bottom) / 2 - rect.top;
     const oy = width < 751 ? heroHeight - 190 : textCenter;
     // Smoothstep starts gently and settles without an abrupt stop at full spread.
     const spread = progress * progress * (3 - 2 * progress);
-    ctx.fillStyle = '#eadbff';
+    ctx.fillStyle = '#efdef9';
     ctx.globalAlpha = .9 * (1 - progress * .65);
     ctx.beginPath();
-    points.forEach((p) => {
+    for (const p of points) {
       const x = p.x * cy + p.z * sy;
       const z = -p.x * sy + p.z * cy;
       const perspective = 3.2 / (3.2 - z);
@@ -98,7 +101,7 @@ export function initParticles() {
       const px = ox - rx * scale * perspective + p.driftX * spread * width * .35;
       const py = oy + ry * scale * perspective + (p.driftY * .3 + .55) * spread * heroHeight;
       ctx.rect(px, py, p.size, p.size);
-    });
+    }
     ctx.fill();
     ctx.globalAlpha = 1;
     if (visible && !document.hidden && !reduced.matches) frame = requestAnimationFrame(paint);
@@ -106,6 +109,7 @@ export function initParticles() {
   function start() {
     if (!visible || document.hidden || frame) return;
     previous = 0;
+    syncProgress = true;
     frame = requestAnimationFrame(paint);
   }
   function stop() {
@@ -113,16 +117,34 @@ export function initParticles() {
     frame = 0;
     previous = 0;
   }
-  new ResizeObserver(() => {
-    width = hero.clientWidth;
-    heroHeight = hero.clientHeight;
-    height = canvas.clientHeight;
+  function resize() {
+    const nextWidth = hero.clientWidth;
+    const nextHeight = canvas.clientHeight;
+    const nextHeroHeight = hero.clientHeight;
+    if (!nextWidth || !nextHeight || !nextHeroHeight) return;
+    // Layout coordinates exclude animated text transforms, avoiding positional jitter.
+    const nextCenter = (headline.offsetTop + subtitle.offsetTop + subtitle.offsetHeight) / 2;
+    const layoutChanged = width !== nextWidth || height !== nextHeight || heroHeight !== nextHeroHeight || textCenter !== nextCenter;
+    width = nextWidth;
+    height = nextHeight;
+    heroHeight = nextHeroHeight;
+    textCenter = nextCenter;
     const ratio = Math.min(devicePixelRatio || 1, 2);
-    canvas.width = Math.round(width * ratio);
-    canvas.height = Math.round(height * ratio);
-    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    start();
-  }).observe(canvas);
+    const bufferWidth = Math.round(width * ratio);
+    const bufferHeight = Math.round(height * ratio);
+    const bufferChanged = canvas.width !== bufferWidth || canvas.height !== bufferHeight;
+    // Setting a canvas dimension clears it even when its value has not changed.
+    if (bufferChanged) {
+      canvas.width = bufferWidth;
+      canvas.height = bufferHeight;
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    }
+    if (layoutChanged || bufferChanged) start();
+  }
+  const sizing = new ResizeObserver(resize);
+  sizing.observe(hero);
+  sizing.observe(canvas);
+  addEventListener('resize', resize, { passive: true });
   new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
     if (visible) start();
