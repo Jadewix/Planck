@@ -6,6 +6,8 @@ export function initNavigation() {
   const footer = document.querySelector('footer');
   const home = document.querySelector('header a');
   const links = [...menu.querySelectorAll('a')];
+  const desktop = matchMedia('(min-width: 751px)');
+  const desktopLinks = [...document.querySelectorAll('.desktop-nav a')];
   let previousOverflow = '';
 
   function close({ restoreFocus = true } = {}) {
@@ -19,6 +21,7 @@ export function initNavigation() {
   }
 
   toggle.addEventListener('click', () => {
+    if (desktop.matches) return;
     if (!menu.hidden) return close();
     previousOverflow = document.body.style.overflow;
     menu.hidden = false;
@@ -45,4 +48,35 @@ export function initNavigation() {
     event.preventDefault();
     focusable[(index + (event.shiftKey ? -1 : 1) + focusable.length) % focusable.length].focus();
   });
+
+  // Restore page interaction when resizing out of an open mobile menu.
+  desktop.addEventListener('change', () => {
+    if (!desktop.matches || menu.hidden) return;
+    close({ restoreFocus: false });
+    desktopLinks.find((link) => link.hasAttribute('aria-current'))?.focus({ preventScroll: true });
+  });
+
+  const sections = [...document.querySelectorAll('main > section[id]')];
+  let scheduled = false;
+  function updateCurrent() {
+    scheduled = false;
+    let current = sections[0].id;
+    for (const section of sections) {
+      if (section.getBoundingClientRect().top <= 140) current = section.id;
+    }
+    if (scrollY + innerHeight >= document.documentElement.scrollHeight - 2) current = 'contact';
+    [...desktopLinks, ...links].forEach((link) => {
+      if (link.hash === `#${current}`) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  }
+  function requestUpdate() {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(updateCurrent);
+  }
+  addEventListener('scroll', requestUpdate, { passive: true });
+  addEventListener('resize', requestUpdate);
+  updateCurrent();
+
 }

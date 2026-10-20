@@ -16,8 +16,22 @@ test('portfolio loads with working assets and no browser errors', async ({ page 
   expect(errors).toEqual([]);
 });
 
-test('menu traps focus, closes with Escape, and navigates to sections', async ({ page }) => {
+test('navigation displays desktop links and keeps the expandable menu on mobile', async ({ page }, testInfo) => {
   await page.goto('/');
+  if (testInfo.project.name === 'desktop') {
+    const nav = page.getByRole('navigation', { name: 'Desktop navigation' });
+    await expect(nav).toBeVisible();
+    await expect(page.locator('.menu-toggle')).toBeHidden();
+    await expect(nav.getByRole('link', { name: 'Home', exact: true })).toHaveAttribute('aria-current', 'location');
+    await nav.getByRole('link', { name: 'Projects', exact: true }).click();
+    await expect(page).toHaveURL(/#work$/);
+    await expect(nav.getByRole('link', { name: 'Projects', exact: true })).toHaveAttribute('aria-current', 'location');
+    await nav.getByRole('link', { name: 'Contact us' }).click();
+    await expect(page).toHaveURL(/#contact$/);
+    await expect(page.locator('.contact-email')).toBeInViewport();
+    return;
+  }
+  await expect(page.locator('.desktop-nav')).toBeHidden();
   const toggle = page.getByRole('button', { name: 'Open menu' });
   await toggle.click();
   await expect(page.getByRole('link', { name: 'Services', exact: true })).toBeFocused();
@@ -97,4 +111,18 @@ test('content and project links remain available without JavaScript', async ({ b
   await expect(page.locator('.services > h2')).toBeVisible();
   await expect(page.getByRole('link', { name: 'VIEW PROJECT', exact: false })).toHaveCount(3);
   await context.close();
+});
+
+
+test('resizing an open mobile menu restores desktop navigation and page scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Open menu' }).click();
+  await expect(page.locator('main')).toHaveJSProperty('inert', true);
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await expect(page.locator('#menu')).toBeHidden();
+  await expect(page.locator('.desktop-nav')).toBeVisible();
+  await expect(page.locator('main')).toHaveJSProperty('inert', false);
+  await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
