@@ -8,7 +8,7 @@ test('portfolio loads with working assets and no browser errors', async ({ page 
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.locator('.case-row')).toHaveCount(3);
   await expect(page.locator('.contact-email')).toHaveAttribute('href', 'mailto:plancksoftware@gmail.com');
-  for (const image of await page.locator('img').all()) {
+  for (const image of await page.locator('main img').all()) {
     await image.scrollIntoViewIfNeeded();
     await expect.poll(() => image.evaluate((el) => el.complete && el.naturalWidth > 0)).toBe(true);
   }
@@ -181,4 +181,62 @@ test('a project without a website can open an on-page case-study card', async ({
   await dialog.getByRole('button', { name: 'Close', exact: true }).click();
   await expect(dialog).toBeHidden();
   await expect(control).toBeFocused();
+});
+
+test('all project case-study buttons open the shared card with correct scope and content', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.case-study-trigger')).toHaveCount(3);
+  for (const [index, name] of ['Fusion Piercings', 'Vigorfit', 'AITS'].entries()) {
+    const trigger = page.locator('.case-study-trigger').nth(index);
+    const row = trigger.locator('xpath=ancestor::article');
+    await expect(row.getByRole('link', { name: 'VIEW PROJECT', exact: false })).toBeVisible();
+    await trigger.click();
+    const dialog = page.getByRole('dialog', { name, exact: true });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('heading', { name, exact: true })).toBeFocused();
+    await expect(dialog.locator('.study-section h3')).toHaveText(['01The brief', '02What we delivered', '03The outcome']);
+    await expect(dialog.locator('.study-scope li')).not.toHaveCount(0);
+    await expect(dialog.locator('.study-gallery')).toBeHidden();
+    await expect.poll(() => dialog.locator('.study-cover img').evaluate((el) => el.complete && el.naturalWidth > 0)).toBe(true);
+    expect(await dialog.locator('.study-scroll').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    if (name === 'AITS') {
+      await expect(dialog.locator('[data-study-role]')).toHaveText('UI/UX design');
+      await expect(dialog.locator('[data-study-outcome]')).toContainText('development was handled separately');
+      await expect(dialog.locator('.study-metrics')).toBeHidden();
+      await expect(dialog.locator('[data-study-timeline]')).toBeHidden();
+    } else {
+      await expect(dialog.locator('[data-study-role]')).toHaveText('End-to-end design & development');
+      await expect(dialog.locator('.study-metrics')).toContainText(name === 'Fusion Piercings' ? '+30%' : '50');
+      await expect(dialog.locator('[data-study-timeline]')).toContainText(name === 'Fusion Piercings' ? 'May 1–30' : 'September 1–25');
+    }
+    // Tab stays inside the native modal instead of moving to page navigation.
+    for (let i = 0; i < 8; i++) {
+      await page.keyboard.press('Tab');
+      expect(await dialog.evaluate((el) => el.contains(document.activeElement))).toBe(true);
+    }
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await expect(trigger).toBeFocused();
+  }
+});
+
+test('large case studies scroll internally, close from the fixed toolbar, and reset on reopen', async ({ page }) => {
+  await page.goto('/');
+  const trigger = page.locator('.case-study-trigger').first();
+  await trigger.click();
+  const dialog = page.getByRole('dialog', { name: 'Fusion Piercings', exact: true });
+  const pageScroll = await page.evaluate(() => scrollY);
+  await dialog.locator('.study-footer').scrollIntoViewIfNeeded();
+  await expect.poll(() => dialog.locator('.study-scroll').evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+  expect(await page.evaluate(() => scrollY)).toBe(pageScroll);
+  const close = dialog.getByRole('button', { name: 'Close case study', exact: true });
+  await expect(close).toBeInViewport();
+  await close.click();
+  await expect(dialog).toBeHidden();
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await expect(dialog.locator('.study-scroll')).toHaveJSProperty('scrollTop', 0);
+  await dialog.getByRole('button', { name: 'Back to projects', exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
 });

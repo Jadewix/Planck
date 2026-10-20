@@ -75,8 +75,10 @@ Cloudflare supplies deployment credentials through its repository integration. D
 
 The contact link opens an email to `plancksoftware@gmail.com`. There is no server-side form or inbox integration. Verify project descriptions, external links, and the upcoming-project list before publishing. Add canonical and social image URLs once the production domain is known; no domain or contact details have been invented.
 
-## Project expand controls and future case studies
+## Project controls and case studies
 
-The green control in each project frame opens that project's live website in a new tab. Its destination is an ordinary anchor, so it also works without JavaScript. The current three projects all link to their websites.
+Every project has a **View case study** button that opens a large card on this page. The green frame control continues to open the project's website in a new tab. For future projects without a website, it can open the case study instead.
 
-For a future project with no public website, set its green `.case-expand` link to `href="#case-study-slug"`, remove `target` and `rel`, and give it an appropriate `aria-label` and `aria-haspopup="dialog"`. Add the matching `<dialog id="case-study-slug" class="case-study-card" aria-labelledby="case-study-slug-title">` to `index.html`, with a heading bearing that title ID, approved case-study content, and a `<button type="button" data-close-case-study>Close</button>`. The existing script opens the card on this page, supports Escape and backdrop dismissal, locks background scrolling, and restores focus. Link the project's preview and text CTA to the same section or supplied case-study content as appropriate. Do not link an expand control to a missing case study; add the content first. No placeholder case studies are published.
+All three studies use one shared HTML template and structured content in `src/content/case-studies.js`. The renderer, card styles, keyboard interaction, and section order are shared. Optional metrics and image galleries are omitted when unavailable. Current case studies use the supplied homepage screenshots and confirmed project details.
+
+See [the case-study template guide](docs/case-studies.md) for the researched agency references, content schema, instructions for adding a study, and the missing-assets checklist. No separate pages or database are needed.
