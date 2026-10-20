@@ -136,3 +136,49 @@ test('resizing an open mobile menu restores desktop navigation and page scrollin
   await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+test('green expand controls open the correct project websites', async ({ page, context }) => {
+  await page.goto('/');
+  const controls = page.locator('.case-expand');
+  await expect(controls).toHaveCount(3);
+  for (const [index, url] of ['https://fusionpiercings.app/', 'https://vigorfit.me/', 'https://aitsmena.com/'].entries()) {
+    await expect(controls.nth(index)).toHaveAttribute('href', url);
+    await expect(controls.nth(index)).toHaveAttribute('target', '_blank');
+  }
+  // Fulfill the external navigation locally; do not depend on a client's live server.
+  await context.route('https://fusionpiercings.app/**', (route) => route.fulfill({ body: '<title>Project website</title>' }));
+  const popup = page.waitForEvent('popup');
+  await controls.first().click();
+  const project = await popup;
+  await expect(project).toHaveURL('https://fusionpiercings.app/');
+  await project.close();
+});
+
+test('a project without a website can open an on-page case-study card', async ({ page }) => {
+  await page.goto('/');
+  // Case-study content is a test fixture; no fabricated case study ships on the site.
+  await page.evaluate(() => {
+    const control = document.querySelector('.case-expand');
+    control.setAttribute('href', '#test-case-study');
+    control.removeAttribute('target');
+    const dialog = document.createElement('dialog');
+    dialog.id = 'test-case-study';
+    dialog.className = 'case-study-card';
+    dialog.setAttribute('aria-labelledby', 'test-case-study-title');
+    dialog.innerHTML = '<button type="button" data-close-case-study>Close</button><h2 id="test-case-study-title">Test case study</h2><p>Approved project content.</p>';
+    document.body.append(dialog);
+  });
+  const control = page.locator('.case-expand').first();
+  const dialog = page.getByRole('dialog', { name: 'Test case study' });
+  await control.click();
+  await expect(dialog).toBeVisible();
+  await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await expect(control).toBeFocused();
+  await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
+  await control.click();
+  await dialog.getByRole('button', { name: 'Close', exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await expect(control).toBeFocused();
+});

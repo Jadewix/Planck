@@ -67,10 +67,25 @@ summary::-webkit-details-marker { display: none; }
 .work { padding-left: 4%; padding-right: 4%; }
 .work > h2 { font-size: clamp(56px, 10vw, 160px); margin: 0 0 70px; }
 .case-row { display: grid; grid-template-columns: 1.35fr 1fr; align-items: center; gap: 6%; padding: 72px 0; border-top: 1px solid var(--border); }
-.case-screen { display: block; position: relative; min-width: 0; padding-top: 28px; border-radius: 12px; overflow: hidden; background: #17191e; border: 1px solid var(--border); box-shadow: 0 18px 60px #0003; }
+.case-screen { display: block; position: relative; min-width: 0; border-radius: 12px; overflow: hidden; background: #17191e; border: 1px solid var(--border); box-shadow: 0 18px 60px #0003; }
 .case-screen img { width: 100%; height: auto; display: block; }
-.case-screen::before { content: ""; position: absolute; top: 11px; left: 12px; width: 6px; height: 6px; border-radius: 50%; background: #77717c; box-shadow: 11px 0 #77717c, 22px 0 #77717c; }
-.case-screen::after { content: 'WEBSITE PREVIEW'; position: absolute; right: 12px; top: 10px; color: #b4aeba; font-size: 7px; letter-spacing: 1.3px; }
+/* The green traffic-light control is a real link with a generous hit area. */
+.case-toolbar { display: flex; justify-content: space-between; align-items: center; min-height: 36px; padding: 0 12px; gap: 16px; }
+.case-controls { display: flex; align-items: center; gap: 6px; }
+.case-dot { display: block; width: 9px; height: 9px; border-radius: 50%; background: #77717c; }
+.case-expand { display: grid; place-items: center; width: 28px; height: 32px; position: relative; color: #073e1d; border-radius: 4px; }
+.case-expand::before { content: ''; width: 12px; height: 12px; border-radius: 50%; background: #30c75a; position: absolute; }
+.case-expand svg { width: 10px; height: 10px; position: relative; opacity: 0; transition: opacity .2s; }
+.case-expand:hover svg, .case-expand:focus-visible svg { opacity: 1; }
+.case-expand:hover::before { background: #45df73; }
+.case-preview-label { color: #b4aeba; font-size: 7px; letter-spacing: 1.3px; text-transform: uppercase; }
+.case-preview { display: block; }
+.case-study-card { width: min(760px, calc(100% - 40px)); max-height: 85svh; padding: clamp(24px, 5vw, 60px); border: 1px solid var(--border); border-radius: 12px; background: #111214; color: #efefed; }
+.case-study-card::backdrop { background: #08090ae6; }
+.case-study-card h2 { font-size: clamp(32px, 5vw, 60px); }
+.case-study-card p { color: var(--muted); line-height: 1.7; }
+.case-study-card [data-close-case-study] { display: block; margin-left: auto; padding: 10px 14px; border: 1px solid var(--border); border-radius: 4px; background: transparent; cursor: pointer; }
+@media (hover: none) { .case-expand svg { opacity: 1; } }
 .case-copy h3 { font-size: clamp(36px, 4.3vw, 76px); margin: 22px 0 32px; overflow-wrap: anywhere; }
 .case-tag { line-height: 1.8; display: block; }
 .case-role { display: grid; grid-template-columns: 75px minmax(0, 1fr); gap: 18px; align-items: baseline; margin: 0 0 32px; padding-top: 18px; border-top: 1px solid var(--border); }

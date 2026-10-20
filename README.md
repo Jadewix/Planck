@@ -74,3 +74,9 @@ Cloudflare supplies deployment credentials through its repository integration. D
 - The original designer export is preserved in the first Git commit. Current assets are optimized WebP versions of the supplied homepage screenshots; unused export images were removed from the deployed tree.
 
 The contact link opens an email to `plancksoftware@gmail.com`. There is no server-side form or inbox integration. Verify project descriptions, external links, and the upcoming-project list before publishing. Add canonical and social image URLs once the production domain is known; no domain or contact details have been invented.
+
+## Project expand controls and future case studies
+
+The green control in each project frame opens that project's live website in a new tab. Its destination is an ordinary anchor, so it also works without JavaScript. The current three projects all link to their websites.
+
+For a future project with no public website, set its green `.case-expand` link to `href="#case-study-slug"`, remove `target` and `rel`, and give it an appropriate `aria-label` and `aria-haspopup="dialog"`. Add the matching `<dialog id="case-study-slug" class="case-study-card" aria-labelledby="case-study-slug-title">` to `index.html`, with a heading bearing that title ID, approved case-study content, and a `<button type="button" data-close-case-study>Close</button>`. The existing script opens the card on this page, supports Escape and backdrop dismissal, locks background scrolling, and restores focus. Link the project's preview and text CTA to the same section or supplied case-study content as appropriate. Do not link an expand control to a missing case study; add the content first. No placeholder case studies are published.
