@@ -15,7 +15,7 @@ export function initParticles() {
     return seed / 4294967296;
   };
   // Limit sampling attempts and particle count, including on lower-end phones.
-  const count = innerWidth < 751 ? 3200 : 7000;
+  const count = innerWidth < 751 ? 3200 : 4800;
   for (let attempt = 0; points.length < count && attempt < count * 30; attempt++) {
     const x = 7476 + random() * 247;
     const y = 4549 + random() * 260;
@@ -34,7 +34,7 @@ export function initParticles() {
     }
   }
   // Restore the export's defined silhouette and extruded edges, with bounded sampling.
-  const edgeCount = innerWidth < 751 ? 1800 : 4500;
+  const edgeCount = innerWidth < 751 ? 1800 : 2800;
   for (let added = 0, attempt = 0; added < edgeCount && attempt < edgeCount * 70; attempt++) {
     const x = 7476 + random() * 247;
     const y = 4549 + random() * 260;
@@ -52,6 +52,7 @@ export function initParticles() {
   }
   let width = 0;
   let height = 0;
+  let heroHeight = 0;
   let visible = false;
   let frame = 0;
   let elapsed = 0;
@@ -65,9 +66,9 @@ export function initParticles() {
     if (!reduced.matches) elapsed += step;
     ctx.clearRect(0, 0, width, height);
     const rect = hero.getBoundingClientRect();
-    const targetProgress = Math.max(0, Math.min(1, -rect.top / (height * .65)));
+    const targetProgress = Math.max(0, Math.min(1, -rect.top / (heroHeight * 1.25)));
     // Reach the full spread earlier, while smoothing wheel and touch input over time.
-    easedProgress = reduced.matches ? 0 : easedProgress + (targetProgress - easedProgress) * (1 - Math.exp(-step / 160));
+    easedProgress = reduced.matches ? 0 : easedProgress + (targetProgress - easedProgress) * (1 - Math.exp(-step / 80));
     const progress = easedProgress;
     const angle = reduced.matches ? -.25 : elapsed * .00014 - .25;
     const tilt = reduced.matches ? -.1 : Math.sin(elapsed * .00021) * .18 - .1;
@@ -76,13 +77,16 @@ export function initParticles() {
     const cosRoll = Math.cos(roll), sinRoll = Math.sin(roll);
     const cy = Math.cos(angle);
     const sy = Math.sin(angle);
-    const scale = width < 751 ? Math.min(width * .29, 145) : Math.min(width * .14, height * .27);
+    const scale = width < 751 ? Math.min(width * .29, 145) : Math.min(width * .18, heroHeight * .33);
     const ox = width < 751 ? width * .64 : width * .78;
-    const oy = width < 751 ? height - 190 : height * .52;
+    const headlineRect = hero.querySelector('h1').getBoundingClientRect();
+    const subtitleRect = hero.querySelector(':scope > p').getBoundingClientRect();
+    const textCenter = (headlineRect.top + subtitleRect.bottom) / 2 - rect.top;
+    const oy = width < 751 ? heroHeight - 190 : textCenter;
     // Smoothstep starts gently and settles without an abrupt stop at full spread.
     const spread = progress * progress * (3 - 2 * progress);
     ctx.fillStyle = '#eadbff';
-    ctx.globalAlpha = .9 * (1 - progress * .8);
+    ctx.globalAlpha = .9 * (1 - progress * .65);
     ctx.beginPath();
     points.forEach((p) => {
       const x = p.x * cy + p.z * sy;
@@ -92,7 +96,7 @@ export function initParticles() {
       const rx = x * cosRoll - y * sinRoll;
       const ry = x * sinRoll + y * cosRoll;
       const px = ox - rx * scale * perspective + p.driftX * spread * width * .35;
-      const py = oy + ry * scale * perspective + p.driftY * spread * height * .35;
+      const py = oy + ry * scale * perspective + (p.driftY * .3 + .55) * spread * heroHeight;
       ctx.rect(px, py, p.size, p.size);
     });
     ctx.fill();
@@ -111,18 +115,19 @@ export function initParticles() {
   }
   new ResizeObserver(() => {
     width = hero.clientWidth;
-    height = hero.clientHeight;
+    heroHeight = hero.clientHeight;
+    height = canvas.clientHeight;
     const ratio = Math.min(devicePixelRatio || 1, 2);
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round(height * ratio);
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     start();
-  }).observe(hero);
+  }).observe(canvas);
   new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
     if (visible) start();
     else stop();
-  }).observe(hero);
+  }).observe(canvas);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stop();
     else start();

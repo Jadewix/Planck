@@ -16,21 +16,8 @@ test('portfolio loads with working assets and no browser errors', async ({ page 
   expect(errors).toEqual([]);
 });
 
-test('navigation displays desktop links and keeps the expandable menu on mobile', async ({ page }, testInfo) => {
+test('fixed menu works with keyboard focus on desktop and mobile', async ({ page }, testInfo) => {
   await page.goto('/');
-  if (testInfo.project.name === 'desktop') {
-    const nav = page.getByRole('navigation', { name: 'Desktop navigation' });
-    await expect(nav).toBeVisible();
-    await expect(page.locator('.menu-toggle')).toBeHidden();
-    await expect(nav.getByRole('link', { name: 'Home', exact: true })).toHaveAttribute('aria-current', 'location');
-    await nav.getByRole('link', { name: 'Projects', exact: true }).click();
-    await expect(page).toHaveURL(/#work$/);
-    await expect(nav.getByRole('link', { name: 'Projects', exact: true })).toHaveAttribute('aria-current', 'location');
-    await nav.getByRole('link', { name: 'Contact us' }).click();
-    await expect(page).toHaveURL(/#contact$/);
-    await expect(page.locator('#contact [data-open-inquiry]')).toBeInViewport();
-    return;
-  }
   await expect(page.locator('.desktop-nav')).toBeHidden();
   const toggle = page.getByRole('button', { name: 'Open menu' });
   await toggle.click();
@@ -119,19 +106,21 @@ test('content and project links remain available without JavaScript', async ({ b
   await page.goto(baseURL);
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.locator('.services > h2')).toBeVisible();
-  await expect(page.getByRole('link', { name: 'VIEW PROJECT', exact: false })).toHaveCount(3);
+  await expect(page.locator('.case-preview')).toHaveCount(3);
   await context.close();
 });
 
 
-test('resizing an open mobile menu restores desktop navigation and page scrolling', async ({ page }) => {
+test('menu remains usable when resizing from mobile to desktop', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await page.getByRole('button', { name: 'Open menu' }).click();
   await expect(page.locator('main')).toHaveJSProperty('inert', true);
   await page.setViewportSize({ width: 1024, height: 768 });
+  await expect(page.locator('#menu')).toBeVisible();
+  await page.keyboard.press('Escape');
   await expect(page.locator('#menu')).toBeHidden();
-  await expect(page.locator('.desktop-nav')).toBeVisible();
+  await expect(page.locator('.menu-toggle')).toBeVisible();
   await expect(page.locator('main')).toHaveJSProperty('inert', false);
   await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -189,7 +178,7 @@ test('all project case-study buttons open the shared card with correct scope and
   for (const [index, name] of ['Vigorfit', 'AITS', 'Fusion Piercings'].entries()) {
     const trigger = page.locator('.case-study-trigger').nth(index);
     const row = trigger.locator('xpath=ancestor::article');
-    await expect(row.getByRole('link', { name: 'VIEW PROJECT', exact: false })).toBeVisible();
+    await expect(row.locator('.case-preview')).toBeVisible();
     await trigger.click();
     const dialog = page.getByRole('dialog', { name, exact: true });
     await expect(dialog).toBeVisible();

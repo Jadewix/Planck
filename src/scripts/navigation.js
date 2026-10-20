@@ -6,7 +6,6 @@ export function initNavigation() {
   const footer = document.querySelector('footer');
   const home = document.querySelector('header a');
   const links = [...menu.querySelectorAll('a')];
-  const desktop = matchMedia('(min-width: 751px)');
   const desktopLinks = [...document.querySelectorAll('.desktop-nav a')];
   let previousOverflow = '';
 
@@ -21,7 +20,7 @@ export function initNavigation() {
   }
 
   toggle.addEventListener('click', () => {
-    if (desktop.matches) return;
+
     if (!menu.hidden) return close();
     previousOverflow = document.body.style.overflow;
     menu.hidden = false;
@@ -49,12 +48,7 @@ export function initNavigation() {
     focusable[(index + (event.shiftKey ? -1 : 1) + focusable.length) % focusable.length].focus();
   });
 
-  // Restore page interaction when resizing out of an open mobile menu.
-  desktop.addEventListener('change', () => {
-    if (!desktop.matches || menu.hidden) return;
-    close({ restoreFocus: false });
-    desktopLinks.find((link) => link.hasAttribute('aria-current'))?.focus({ preventScroll: true });
-  });
+
 
   const sections = [...document.querySelectorAll('main > section[id]')];
   let scheduled = false;

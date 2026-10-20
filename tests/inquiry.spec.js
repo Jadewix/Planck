@@ -42,7 +42,7 @@ for (const type of ['mobile', 'web', 'design', 'unsure']) {
     await details(page, type);
     await contact(page);
     await page.getByRole('button', { name: 'Send project inquiry', exact: true }).click();
-    await expect(dialog.getByText('Thanks for telling us about it.')).toBeVisible();
+    await expect(dialog.getByText('Thanks for telling us about it')).toBeVisible();
     expect(payload.projectType).toBe(type);
     expect(payload.name).toBe('Alex Client');
     expect(payload.budget).toBe('Around USD 8,000');
@@ -98,7 +98,7 @@ test('case-study inquiry opens the same form and Escape restores the project tri
   const studyTrigger = page.locator('.case-study-trigger').first();
   await studyTrigger.click();
   const study = page.getByRole('dialog', { name: 'Vigorfit', exact: true });
-  await study.getByRole('button', { name: 'Inquire about a project', exact: true }).click();
+  await study.getByRole('button', { name: 'Let’s talk', exact: true }).click();
   await expect(study).toBeHidden();
   const dialog = page.getByRole('dialog', { name: 'What are you planning?', exact: true });
   await expect(dialog).toBeVisible();
