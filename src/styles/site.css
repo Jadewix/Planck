@@ -140,3 +140,15 @@ footer { border-top: 1px solid var(--border); margin: 0 var(--gutter); padding: 
 
 .icon { width: 19px; height: 19px; display: block; }
 .contact-email { letter-spacing: .08em; font-size: clamp(10px, 2vw, 14px); }
+
+.case-description { margin: 0 0 22px; max-width: 46ch; color: var(--muted); font-size: 15px; line-height: 1.7; }
+.case-result { margin: 0 0 28px; font-size: 14px; line-height: 1.6; color: #c8c1cc; }
+.case-result strong { color: #efefed; font-size: 20px; font-weight: 400; }
+.case-result small { display: block; margin-top: 4px; color: #96909b; font-size: 11px; }
+.project-process { list-style: none; counter-reset: process; margin: 64px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px; }
+.project-process li { counter-increment: process; border-top: 1px solid var(--border); padding-top: 20px; }
+.project-process li::before { content: '0' counter(process); font-size: 10px; letter-spacing: 1.5px; color: #96909b; }
+.project-process h3 { font-size: 23px; letter-spacing: -.025em; margin: 20px 0 14px; }
+.project-process p { font-size: 14px; line-height: 1.7; color: var(--muted); margin: 0; }
+.contact > p { max-width: 52ch; }
+@media (max-width: 750px) { .project-process { grid-template-columns: 1fr; gap: 28px; margin-top: 40px; } }
