@@ -73,6 +73,9 @@ summary::-webkit-details-marker { display: none; }
 .case-screen::after { content: 'WEBSITE PREVIEW'; position: absolute; right: 12px; top: 10px; color: #b4aeba; font-size: 7px; letter-spacing: 1.3px; }
 .case-copy h3 { font-size: clamp(36px, 4.3vw, 76px); margin: 22px 0 32px; overflow-wrap: anywhere; }
 .case-tag { line-height: 1.8; display: block; }
+.case-role { display: grid; grid-template-columns: 75px minmax(0, 1fr); gap: 18px; align-items: baseline; margin: 0 0 32px; padding-top: 18px; border-top: 1px solid var(--border); }
+.case-role dt { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: #96909b; }
+.case-role dd { margin: 0; font-size: 14px; line-height: 1.6; color: #c8c1cc; }
 .next { border-top: 1px solid var(--border); margin-top: 45px; padding-top: 30px; color: var(--muted); font-size: 13px; line-height: 1.9; }
 .about { min-height: 90svh; display: flex; flex-direction: column; justify-content: center; }
 .about h2 { font-size: clamp(48px, 8vw, 130px); margin: 0 0 65px; }
