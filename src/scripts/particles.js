@@ -29,6 +29,7 @@ export function initParticles() {
   let frame = 0;
   let elapsed = 0;
   let previous = 0;
+  let easedProgress = 0;
 
   function paint(time) {
     frame = 0;
@@ -37,8 +38,11 @@ export function initParticles() {
     if (!reduced.matches) elapsed += step;
     ctx.clearRect(0, 0, width, height);
     const rect = hero.getBoundingClientRect();
-    const progress = reduced.matches ? 0 : Math.max(0, Math.min(1, -rect.top / height));
-    const angle = reduced.matches ? -.25 : elapsed * .00022 - .25;
+    const targetProgress = Math.max(0, Math.min(1, -rect.top / (height * 1.5)));
+    // Ease wheel/touch jumps rather than scattering the logo in a single frame.
+    easedProgress = reduced.matches ? 0 : easedProgress + (targetProgress - easedProgress) * (1 - Math.exp(-step / 220));
+    const progress = easedProgress;
+    const angle = reduced.matches ? -.25 : elapsed * .00014 - .25;
     const cy = Math.cos(angle);
     const sy = Math.sin(angle);
     const scale = width < 751 ? Math.min(width * .29, 145) : Math.min(width * .14, height * .27);

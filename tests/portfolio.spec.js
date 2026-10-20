@@ -35,7 +35,7 @@ test('menu traps focus, closes with Escape, and navigates to sections', async ({
   expect(await page.locator('main').evaluate((el) => el.inert)).toBe(false);
 });
 
-test('reveals remain visible on return and project previews track scrolling', async ({ page }) => {
+test('reveals remain visible on return and project captures stay framed when scrolling', async ({ page }) => {
   await page.goto('/');
   await page.addStyleTag({ content: 'html { scroll-behavior: auto !important; }' });
   const heading = page.locator('.services > h2');
@@ -44,13 +44,25 @@ test('reveals remain visible on return and project previews track scrolling', as
   await page.locator('#contact').scrollIntoViewIfNeeded();
   await heading.scrollIntoViewIfNeeded();
   await expect(heading).toHaveCSS('opacity', '1');
-  const screen = page.locator('.case-screen').first();
-  await screen.scrollIntoViewIfNeeded();
-  await expect.poll(() => screen.locator('img').evaluate((el) => el.naturalWidth)).toBeGreaterThan(0);
-  await expect.poll(() => screen.evaluate((el) => parseFloat(el.style.getPropertyValue('--preview-offset')))).toBeLessThan(0);
-  const before = await screen.evaluate((el) => parseFloat(el.style.getPropertyValue('--preview-offset')));
-  await page.evaluate(() => window.scrollBy(0, 100));
-  await expect.poll(() => screen.evaluate((el) => parseFloat(el.style.getPropertyValue('--preview-offset')))).toBeLessThan(before);
+  for (const screen of await page.locator('.case-screen').all()) {
+    await screen.scrollIntoViewIfNeeded();
+    await expect(screen).not.toHaveClass(/reveal-pending/);
+    await expect(screen).toHaveCSS('opacity', '1');
+    const image = screen.locator('img');
+    await expect.poll(() => image.evaluate((el) => el.complete && el.naturalWidth > 0)).toBe(true);
+    const geometry = await image.evaluate((el) => ({
+      displayed: el.clientWidth / el.clientHeight,
+      original: el.naturalWidth / el.naturalHeight,
+      offset: el.getBoundingClientRect().top - el.parentElement.getBoundingClientRect().top,
+    }));
+    // The complete landscape capture fits without stretching, cropping, or blank tall frames.
+    expect(geometry.original).toBeGreaterThan(1.7);
+    expect(geometry.displayed).toBeCloseTo(geometry.original, 1);
+    await page.evaluate(() => window.scrollBy(0, 160));
+    await expect(image).toHaveCSS('transform', 'none');
+    const after = await image.evaluate((el) => el.getBoundingClientRect().top - el.parentElement.getBoundingClientRect().top);
+    expect(after).toBeCloseTo(geometry.offset, 1);
+  }
 });
 
 test('reduced motion works on load and when changed at runtime', async ({ page }) => {

@@ -17,7 +17,7 @@ Vite serves the site on port 5173. Edit `index.html` for copy and portfolio entr
 index.html                 Accessible page content and SEO metadata
 src/main.js                Application entry point
 src/scripts/navigation.js  Menu, focus management, and section navigation
-src/scripts/motion.js      One-time reveals and scroll-linked project previews
+src/scripts/motion.js      One-time section and project reveals
 src/scripts/particles.js   Hero-only particle logo with a bounded rendering budget
 src/styles/site.css        Responsive styles and reduced-motion rules
 public/images/             Optimized project screenshots
@@ -42,7 +42,7 @@ npx playwright install --with-deps chromium
 npm test
 ```
 
-Build before running browser tests. Playwright starts the Vite production preview itself. The suite covers image loading, horizontal overflow, menu focus and Escape behavior, service accordions, one-time reveals, scroll-linked previews, live reduced-motion preferences, and content without JavaScript. The mobile project uses Chromium with iPhone viewport/touch settings; it is not a WebKit/Safari certification.
+Build before running browser tests. Playwright starts the Vite production preview itself. The suite covers image loading, horizontal overflow, menu focus and Escape behavior, service accordions, one-time reveals, stable project framing, live reduced-motion preferences, and content without JavaScript. The mobile project uses Chromium with iPhone viewport/touch settings; it is not a WebKit/Safari certification.
 
 To use a preinstalled Chromium, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium`. To test an already-running Workers instance, set `PLAYWRIGHT_BASE_URL=http://127.0.0.1:8787` before `npm test`. CI runs the production build and browser suite for pushes and pull requests.
 
@@ -68,9 +68,9 @@ Cloudflare supplies deployment credentials through its repository integration. D
 ## Motion and content
 
 - Headings and service rows reveal once. They remain visible when scrolling back; there are no competing observers resetting them.
-- Project previews move through the long screenshots in response to scrolling. They do not run an independent endless auto-scroll.
+- Project previews show the complete supplied homepage captures in landscape browser frames. They stay still during scrolling, avoiding fast-moving content, distortion, and blank regions in long captures.
 - The particle logo is contained in the hero. It stops rendering offscreen and when the tab is hidden, and becomes static when reduced motion is requested.
 - Content remains readable without JavaScript. Reduced-motion preferences are honored at startup and when changed while the page is open.
-- The original designer export is preserved in the first Git commit. Current assets are optimized WebP versions of the supplied screenshots; unused export images were removed from the deployed tree.
+- The original designer export is preserved in the first Git commit. Current assets are optimized WebP versions of the supplied homepage screenshots; unused export images were removed from the deployed tree.
 
 The contact link opens an email to `plancksoftware@gmail.com`. There is no server-side form or inbox integration. Verify project descriptions, external links, and the upcoming-project list before publishing. Add canonical and social image URLs once the production domain is known; no domain or contact details have been invented.
