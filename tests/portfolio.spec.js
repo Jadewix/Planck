@@ -100,7 +100,9 @@ test('service accordions expose the agency offerings', async ({ page }) => {
   await second.locator('summary').click();
   await expect(second).toHaveAttribute('open', '');
   await expect(first).not.toHaveAttribute('open', '');
-  await expect(page.locator('.service-list')).toContainText('UI / UX & web design');
+  await expect(page.locator('.service-list summary')).toHaveText([
+    'Mobile Applications Development', 'Custom Webapp Development', 'UIUX Design',
+  ]);
 });
 
 test('content and project links remain available without JavaScript', async ({ browser, baseURL }) => {
