@@ -15,12 +15,13 @@ export function initParticles() {
     return seed / 4294967296;
   };
   // Limit sampling attempts and particle count, including on lower-end phones.
-  const count = innerWidth < 751 ? 1800 : 4200;
+  const count = innerWidth < 751 ? 3200 : 7000;
   for (let attempt = 0; points.length < count && attempt < count * 30; attempt++) {
     const x = 7476 + random() * 247;
     const y = 4549 + random() * 260;
     if (ctx.isPointInPath(path, x, y)) {
-      const z = (random() - .5) * .64;
+      const face = random();
+      const z = face < .38 ? .32 : face < .76 ? -.32 : (random() - .5) * .64;
       const noise = random();
       points.push({
         x: (x - 7599.5) / 125,
@@ -31,6 +32,23 @@ export function initParticles() {
         size: .7 + noise * .45,
       });
     }
+  }
+  // Restore the export's defined silhouette and extruded edges, with bounded sampling.
+  const edgeCount = innerWidth < 751 ? 1800 : 4500;
+  for (let added = 0, attempt = 0; added < edgeCount && attempt < edgeCount * 70; attempt++) {
+    const x = 7476 + random() * 247;
+    const y = 4549 + random() * 260;
+    if (!ctx.isPointInPath(path, x, y)) continue;
+    const nearEdge = !ctx.isPointInPath(path, x + 1.8, y)
+      || !ctx.isPointInPath(path, x - 1.8, y)
+      || !ctx.isPointInPath(path, x, y + 1.8)
+      || !ctx.isPointInPath(path, x, y - 1.8);
+    if (!nearEdge) continue;
+    const noise = random();
+    points.push({ x: (x - 7599.5) / 125, y: (y - 4679) / 125,
+      z: (random() - .5) * .64, driftX: Math.sin(noise * 178),
+      driftY: Math.cos(noise * 272), size: .7 + noise * .45 });
+    added++;
   }
   let width = 0;
   let height = 0;
@@ -52,6 +70,10 @@ export function initParticles() {
     easedProgress = reduced.matches ? 0 : easedProgress + (targetProgress - easedProgress) * (1 - Math.exp(-step / 160));
     const progress = easedProgress;
     const angle = reduced.matches ? -.25 : elapsed * .00014 - .25;
+    const tilt = reduced.matches ? -.1 : Math.sin(elapsed * .00021) * .18 - .1;
+    const roll = reduced.matches ? 0 : Math.sin(elapsed * .00017) * .055;
+    const cosTilt = Math.cos(tilt), sinTilt = Math.sin(tilt);
+    const cosRoll = Math.cos(roll), sinRoll = Math.sin(roll);
     const cy = Math.cos(angle);
     const sy = Math.sin(angle);
     const scale = width < 751 ? Math.min(width * .29, 145) : Math.min(width * .14, height * .27);
@@ -66,8 +88,11 @@ export function initParticles() {
       const x = p.x * cy + p.z * sy;
       const z = -p.x * sy + p.z * cy;
       const perspective = 3.2 / (3.2 - z);
-      const px = ox - x * scale * perspective + p.driftX * spread * width * .35;
-      const py = oy + p.y * scale * perspective + p.driftY * spread * height * .35;
+      const y = p.y * cosTilt - z * sinTilt;
+      const rx = x * cosRoll - y * sinRoll;
+      const ry = x * sinRoll + y * cosRoll;
+      const px = ox - rx * scale * perspective + p.driftX * spread * width * .35;
+      const py = oy + ry * scale * perspective + p.driftY * spread * height * .35;
       ctx.rect(px, py, p.size, p.size);
     });
     ctx.fill();

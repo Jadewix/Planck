@@ -68,7 +68,7 @@ Cloudflare supplies deployment credentials through its repository integration. D
 ## Motion and content
 
 - Headings and service rows reveal once. They remain visible when scrolling back; there are no competing observers resetting them.
-- Project previews show the complete supplied homepage captures in landscape browser frames. They stay still during scrolling, avoiding fast-moving content, distortion, and blank regions in long captures.
+- Project previews show the complete supplied homepage captures in landscape browser frames. The frames and project names move gently in opposite directions while scrolling, with time-based easing and limited travel. The screenshots remain fitted inside their frames.
 - The particle logo is contained in the hero. It stops rendering offscreen and when the tab is hidden, and becomes static when reduced motion is requested.
 - Content remains readable without JavaScript. Reduced-motion preferences are honored at startup and when changed while the page is open.
 - The original designer export is preserved in the first Git commit. Current assets are optimized WebP versions of the supplied homepage screenshots; unused export images were removed from the deployed tree.

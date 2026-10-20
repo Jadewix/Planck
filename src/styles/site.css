@@ -117,6 +117,7 @@ footer { border-top: 1px solid var(--border); margin: 0 var(--gutter); padding: 
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .reveal-pending { opacity: 1; transform: none; }
+  .case-screen, .case-copy { translate: none !important; }
 }
 
 .icon { width: 19px; height: 19px; display: block; }

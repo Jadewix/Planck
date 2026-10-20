@@ -72,7 +72,11 @@ test('reveals remain visible on return and project captures stay framed when scr
     // The complete landscape capture fits without stretching, cropping, or blank tall frames.
     expect(geometry.original).toBeGreaterThan(1.7);
     expect(geometry.displayed).toBeCloseTo(geometry.original, 1);
+    const copy = screen.locator('..').locator('.case-copy');
+    await expect.poll(() => copy.evaluate((el) => el.style.translate)).not.toBe('');
+    const copyBefore = await copy.evaluate((el) => el.style.translate);
     await page.evaluate(() => window.scrollBy(0, 160));
+    await expect.poll(() => copy.evaluate((el) => el.style.translate)).not.toBe(copyBefore);
     await expect(image).toHaveCSS('transform', 'none');
     const after = await image.evaluate((el) => el.getBoundingClientRect().top - el.parentElement.getBoundingClientRect().top);
     expect(after).toBeCloseTo(geometry.offset, 1);
@@ -85,10 +89,14 @@ test('reduced motion works on load and when changed at runtime', async ({ page }
   await expect(page.locator('.reveal-pending')).toHaveCount(0);
   await page.locator('.case-screen').first().scrollIntoViewIfNeeded();
   await expect(page.locator('.case-screen img').first()).toHaveCSS('transform', 'none');
+  await expect(page.locator('.case-screen').first()).toHaveCSS('translate', 'none');
+  await expect(page.locator('.case-copy').first()).toHaveCSS('translate', 'none');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(page.locator('.reveal-pending')).toHaveCount(0);
   await expect(page.locator('.case-screen img').first()).toHaveCSS('transform', 'none');
+  await expect(page.locator('.case-screen').first()).toHaveCSS('translate', 'none');
+  await expect(page.locator('.case-copy').first()).toHaveCSS('translate', 'none');
 });
 
 test('service accordions expose the agency offerings', async ({ page }) => {
