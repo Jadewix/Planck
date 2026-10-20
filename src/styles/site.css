@@ -41,7 +41,6 @@ header { position: fixed; inset: 0 0 auto; z-index: 30; display: flex; justify-c
 .desktop-nav .nav-contact:hover, .desktop-nav .nav-contact[aria-current] { background: #efe2f6; color: #18121d; }
 .menu-toggle { border: 0; background: transparent; width: 50px; height: 44px; cursor: pointer; display: none; place-content: center; gap: 7px; }
 .menu-toggle span { width: 29px; height: 1px; background: currentColor; transition: transform .25s; }
-.menu-toggle span:last-child { transform: translateX(10px); }
 .menu-toggle[aria-expanded="true"] span:first-child { transform: translateY(4px) rotate(45deg); }
 .menu-toggle[aria-expanded="true"] span:last-child { transform: translateY(-4px) rotate(-45deg); }
 .menu { position: fixed; inset: 0; z-index: 20; background: #111214; display: flex; flex-direction: column; justify-content: center; padding: 100px 10%; gap: 15px; }
@@ -318,7 +317,6 @@ header .logo { width: clamp(135px, 16vw, 200px); height: auto; }
 header .desktop-nav { display: none; }
 header .menu-toggle { display: grid; color: #fff; }
 .menu-toggle span { width: 30px; }
-.menu-toggle span:last-child { transform: translateX(8px); }
 .menu-toggle[aria-expanded="true"] span:last-child { transform: translateY(-4px) rotate(-45deg); }
 .menu { gap: 20px; }
 .menu a { transition: color .2s ease, translate .25s ease; }
