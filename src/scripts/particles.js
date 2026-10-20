@@ -20,7 +20,16 @@ export function initParticles() {
     const x = 7476 + random() * 247;
     const y = 4549 + random() * 260;
     if (ctx.isPointInPath(path, x, y)) {
-      points.push({ x: (x - 7599.5) / 125, y: (y - 4679) / 125, z: (random() - .5) * .64, noise: random() });
+      const z = (random() - .5) * .64;
+      const noise = random();
+      points.push({
+        x: (x - 7599.5) / 125,
+        y: (y - 4679) / 125,
+        z,
+        driftX: Math.sin(noise * 178),
+        driftY: Math.cos(noise * 272),
+        size: .7 + noise * .45,
+      });
     }
   }
   let width = 0;
@@ -38,9 +47,9 @@ export function initParticles() {
     if (!reduced.matches) elapsed += step;
     ctx.clearRect(0, 0, width, height);
     const rect = hero.getBoundingClientRect();
-    const targetProgress = Math.max(0, Math.min(1, -rect.top / (height * 1.5)));
-    // Ease wheel/touch jumps rather than scattering the logo in a single frame.
-    easedProgress = reduced.matches ? 0 : easedProgress + (targetProgress - easedProgress) * (1 - Math.exp(-step / 220));
+    const targetProgress = Math.max(0, Math.min(1, -rect.top / (height * .65)));
+    // Reach the full spread earlier, while smoothing wheel and touch input over time.
+    easedProgress = reduced.matches ? 0 : easedProgress + (targetProgress - easedProgress) * (1 - Math.exp(-step / 160));
     const progress = easedProgress;
     const angle = reduced.matches ? -.25 : elapsed * .00014 - .25;
     const cy = Math.cos(angle);
@@ -48,7 +57,8 @@ export function initParticles() {
     const scale = width < 751 ? Math.min(width * .29, 145) : Math.min(width * .14, height * .27);
     const ox = width < 751 ? width * .64 : width * .78;
     const oy = width < 751 ? height - 190 : height * .52;
-    const spread = progress * progress;
+    // Smoothstep starts gently and settles without an abrupt stop at full spread.
+    const spread = progress * progress * (3 - 2 * progress);
     ctx.fillStyle = '#eadbff';
     ctx.globalAlpha = .9 * (1 - progress * .8);
     ctx.beginPath();
@@ -56,10 +66,9 @@ export function initParticles() {
       const x = p.x * cy + p.z * sy;
       const z = -p.x * sy + p.z * cy;
       const perspective = 3.2 / (3.2 - z);
-      const px = ox - x * scale * perspective + Math.sin(p.noise * 178) * spread * width * .35;
-      const py = oy + p.y * scale * perspective + Math.cos(p.noise * 272) * spread * height * .35;
-      const size = .7 + p.noise * .45;
-      ctx.rect(px, py, size, size);
+      const px = ox - x * scale * perspective + p.driftX * spread * width * .35;
+      const py = oy + p.y * scale * perspective + p.driftY * spread * height * .35;
+      ctx.rect(px, py, p.size, p.size);
     });
     ctx.fill();
     ctx.globalAlpha = 1;
