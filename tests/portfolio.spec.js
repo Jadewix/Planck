@@ -1,0 +1,88 @@
+import { test, expect } from '@playwright/test';
+
+test('portfolio loads with working assets and no browser errors', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/');
+  await expect(page).toHaveTitle('Planck — Design & Development');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.locator('.case-row')).toHaveCount(3);
+  await expect(page.locator('.contact-email')).toHaveAttribute('href', 'mailto:plancksoftware@gmail.com');
+  for (const image of await page.locator('img').all()) {
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(() => image.evaluate((el) => el.complete && el.naturalWidth > 0)).toBe(true);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('menu traps focus, closes with Escape, and navigates to sections', async ({ page }) => {
+  await page.goto('/');
+  const toggle = page.getByRole('button', { name: 'Open menu' });
+  await toggle.click();
+  await expect(page.getByRole('link', { name: 'Services', exact: true })).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(page.getByRole('button', { name: 'Close menu' })).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(page.getByRole('link', { name: 'Contact', exact: true })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(toggle).toBeFocused();
+  await expect(page.locator('#menu')).toBeHidden();
+  await toggle.click();
+  await page.getByRole('link', { name: 'Projects', exact: true }).click();
+  await expect(page).toHaveURL(/#work$/);
+  await expect(page.locator('#work')).toBeFocused();
+  expect(await page.locator('main').evaluate((el) => el.inert)).toBe(false);
+});
+
+test('reveals remain visible on return and project previews track scrolling', async ({ page }) => {
+  await page.goto('/');
+  await page.addStyleTag({ content: 'html { scroll-behavior: auto !important; }' });
+  const heading = page.locator('.services > h2');
+  await heading.scrollIntoViewIfNeeded();
+  await expect(heading).not.toHaveClass(/reveal-pending/);
+  await page.locator('#contact').scrollIntoViewIfNeeded();
+  await heading.scrollIntoViewIfNeeded();
+  await expect(heading).toHaveCSS('opacity', '1');
+  const screen = page.locator('.case-screen').first();
+  await screen.scrollIntoViewIfNeeded();
+  await expect.poll(() => screen.locator('img').evaluate((el) => el.naturalWidth)).toBeGreaterThan(0);
+  await expect.poll(() => screen.evaluate((el) => parseFloat(el.style.getPropertyValue('--preview-offset')))).toBeLessThan(0);
+  const before = await screen.evaluate((el) => parseFloat(el.style.getPropertyValue('--preview-offset')));
+  await page.evaluate(() => window.scrollBy(0, 100));
+  await expect.poll(() => screen.evaluate((el) => parseFloat(el.style.getPropertyValue('--preview-offset')))).toBeLessThan(before);
+});
+
+test('reduced motion works on load and when changed at runtime', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await expect(page.locator('.reveal-pending')).toHaveCount(0);
+  await page.locator('.case-screen').first().scrollIntoViewIfNeeded();
+  await expect(page.locator('.case-screen img').first()).toHaveCSS('transform', 'none');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(page.locator('.reveal-pending')).toHaveCount(0);
+  await expect(page.locator('.case-screen img').first()).toHaveCSS('transform', 'none');
+});
+
+test('service accordions expose the agency offerings', async ({ page }) => {
+  await page.goto('/');
+  const first = page.locator('.service-list details').nth(0);
+  const second = page.locator('.service-list details').nth(1);
+  await first.locator('summary').click();
+  await expect(first).toHaveAttribute('open', '');
+  await second.locator('summary').click();
+  await expect(second).toHaveAttribute('open', '');
+  await expect(first).not.toHaveAttribute('open', '');
+  await expect(page.locator('.service-list')).toContainText('UI / UX & web design');
+});
+
+test('content and project links remain available without JavaScript', async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto(baseURL);
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.locator('.services > h2')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'VIEW PROJECT', exact: false })).toHaveCount(3);
+  await context.close();
+});
