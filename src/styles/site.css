@@ -2,7 +2,7 @@
   color-scheme: dark;
   font-family: Arial, Helvetica, sans-serif;
   color: #efefed;
-  background: #08090a;
+  background: #111014;
   --muted: #aaa3ad;
   --accent: #c8b9d1;
   --border: #ffffff28;
@@ -19,8 +19,18 @@ button, summary, a { -webkit-tap-highlight-color: transparent; }
 [hidden] { display: none !important; }
 .skip-link { position: fixed; top: 12px; left: 12px; z-index: 40; padding: 14px 20px; background: #efefed; color: #08090a; transform: translateY(-160%); }
 .skip-link:focus { transform: none; }
-.atmosphere { position: fixed; inset: 0; pointer-events: none; z-index: -1; background: radial-gradient(ellipse at 75% 35%, #3a2e4350, transparent 52%), radial-gradient(ellipse at 15% 85%, #322e3730, transparent 48%); }
-header { position: fixed; inset: 0 0 auto; z-index: 30; display: flex; justify-content: space-between; align-items: center; padding: 24px 4%; background: #08090aef; border-bottom: 1px solid #ffffff12; }
+/* Layered charcoal/violet atmosphere: slow haze, depth rings, and fine dust. */
+.atmosphere { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; background: radial-gradient(ellipse at 78% 44%, #3d344b66, transparent 62%), radial-gradient(ellipse at 12% 86%, #302b3944, transparent 65%), #111014; }
+main, footer { position: relative; z-index: 1; }
+.atmosphere-glow { position: absolute; inset: -15%; background: radial-gradient(ellipse at 70% 42%, #7963852b, transparent 42%), radial-gradient(ellipse at 30% 72%, #66596f16, transparent 42%); animation: atmosphere-breathe 32s ease-in-out infinite alternate; }
+.atmosphere-rings { position: absolute; left: 36%; top: 12%; width: 94vw; height: 70vw; max-height: 92vh; border: 1px solid #c8b9d112; border-radius: 50%; transform: rotate(-18deg); }
+.atmosphere-rings::after { content: ''; position: absolute; inset: 7%; border: 1px solid #c8b9d108; border-radius: inherit; }
+.atmosphere-dust { position: absolute; inset: -80px; background: url('/images/atmosphere-dust.svg') repeat; background-size: 1200px 1000px; opacity: .62; animation: atmosphere-drift 65s linear infinite alternate; }
+@keyframes atmosphere-breathe { from { transform: translate3d(-1%, -1%, 0) scale(1); opacity: .7; } to { transform: translate3d(2%, 2%, 0) scale(1.06); opacity: 1; } }
+@keyframes atmosphere-drift { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(26px, -42px, 0); } }
+@media (max-width: 750px) { .atmosphere-rings { left: 10%; top: 22%; width: 155vw; height: 145vw; } .atmosphere-dust { background-size: 1000px 834px; opacity: .5; } }
+
+header { position: fixed; inset: 0 0 auto; z-index: 30; display: flex; justify-content: space-between; align-items: center; padding: 24px 4%; background: #111014e6; backdrop-filter: blur(12px); border-bottom: 1px solid #ffffff12; }
 .logo { display: block; width: 135px; height: 32px; object-fit: contain; }
 .desktop-nav { display: flex; align-items: center; gap: clamp(20px, 2.8vw, 48px); }
 .desktop-nav a { position: relative; padding: 16px 0; font-size: 11px; font-weight: 600; letter-spacing: 1.3px; text-transform: uppercase; transition: color .25s; }
