@@ -7,7 +7,7 @@ test('portfolio loads with working assets and no browser errors', async ({ page 
   await expect(page).toHaveTitle('Planck — Design & Development');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.locator('.case-row')).toHaveCount(3);
-  await expect(page.locator('.contact-email')).toHaveAttribute('href', 'mailto:plancksoftware@gmail.com');
+  await expect(page.locator('#contact [data-open-inquiry]')).toBeVisible();
   for (const image of await page.locator('main img').all()) {
     await image.scrollIntoViewIfNeeded();
     await expect.poll(() => image.evaluate((el) => el.complete && el.naturalWidth > 0)).toBe(true);
@@ -28,7 +28,7 @@ test('navigation displays desktop links and keeps the expandable menu on mobile'
     await expect(nav.getByRole('link', { name: 'Projects', exact: true })).toHaveAttribute('aria-current', 'location');
     await nav.getByRole('link', { name: 'Contact us' }).click();
     await expect(page).toHaveURL(/#contact$/);
-    await expect(page.locator('.contact-email')).toBeInViewport();
+    await expect(page.locator('#contact [data-open-inquiry]')).toBeInViewport();
     return;
   }
   await expect(page.locator('.desktop-nav')).toBeHidden();

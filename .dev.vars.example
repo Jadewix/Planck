@@ -1,0 +1,4 @@
+# Copy to .dev.vars only if that file does not already exist, then supply local values.
+# Never commit .dev.vars or paste the shared secret into chat.
+GOOGLE_APPS_SCRIPT_URL=""
+LEAD_WEBHOOK_SECRET=""

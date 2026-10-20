@@ -1,6 +1,6 @@
 # Planck
 
-Planck's agency portfolio: mobile development, web applications, and UI/UX web design. A static website built with semantic HTML, CSS, and small JavaScript modules. No database, API keys, or application server is required.
+Planck's agency portfolio: mobile development, web applications, and UI/UX web design. A static website built with semantic HTML, CSS, and small JavaScript modules. The portfolio uses static assets. Project inquiries use a Cloudflare Worker and a private Google Sheet receiver; no database is required.
 
 ## Develop
 
@@ -59,7 +59,7 @@ In Cloudflare, create a **Worker** connected to `Jadewix/Planck` and use:
 | Deploy command | `npx wrangler deploy` |
 | Node version | `24.19.0` (or a compatible Node 24 release) |
 
-Cloudflare installs dependencies from `package-lock.json`. Set `NODE_VERSION=24.19.0` in build variables if needed. The deploy command reads `wrangler.jsonc` and uploads `dist/` as Workers static assets. This configuration intentionally needs no Worker entry script or database binding. If the dashboard asks for a static output folder, it is `dist`, but Workers deployment uses Wrangler's `assets.directory` setting.
+Cloudflare installs dependencies from `package-lock.json`. Set `NODE_VERSION=24.19.0` in build variables if needed. The deploy command reads `wrangler.jsonc` and uploads `dist/` as Workers static assets. The Worker entry script handles `/api/inquiries`; other requests use the `ASSETS` binding. No database binding is needed. If the dashboard asks for a static output folder, it is `dist`, but Workers deployment uses Wrangler's `assets.directory` setting.
 
 Use a production branch build for the first deployment. If Cloudflare enables non-production branch deployments, disable them initially or configure the branch deploy command as `npx wrangler deploy` with a separate preview Worker name; do not use a Pages deployment command for this project.
 
@@ -73,7 +73,7 @@ Cloudflare supplies deployment credentials through its repository integration. D
 - Content remains readable without JavaScript. Reduced-motion preferences are honored at startup and when changed while the page is open.
 - The original designer export is preserved in the first Git commit. Current assets are optimized WebP versions of the supplied homepage screenshots; unused export images were removed from the deployed tree.
 
-The contact link opens an email to `plancksoftware@gmail.com`. There is no server-side form or inbox integration. Verify project descriptions, external links, and the upcoming-project list before publishing. Add canonical and social image URLs once the production domain is known; no domain or contact details have been invented.
+The contact button opens a service-specific project inquiry form. Saving leads to Google Sheets requires the one-time [lead-capture setup](docs/lead-capture.md). Email to `plancksoftware@gmail.com` remains a fallback when JavaScript is unavailable or delivery fails. Verify project descriptions, external links, and the upcoming-project list before publishing. Add canonical and social image URLs once the production domain is known; no domain or contact details have been invented.
 
 ## Project controls and case studies
 
@@ -81,4 +81,8 @@ Every project has a **View case study** button that opens a large card on this p
 
 All three studies use one shared HTML template and structured content in `src/content/case-studies.js`. The renderer, card styles, keyboard interaction, and section order are shared. Optional metrics and image galleries are omitted when unavailable. Current case studies use the supplied homepage screenshots and confirmed project details.
 
-See [the case-study template guide](docs/case-studies.md) for the researched agency references, content schema, instructions for adding a study, and the missing-assets checklist. No separate pages or database are needed.
+See [the case-study template guide](docs/case-studies.md) for the researched agency references, content schema, instructions for adding a study, and the missing-assets checklist. No separate pages or database are needed. Case-study inquiry buttons open the same project form.
+
+## Lead capture
+
+See [Google Sheets inquiry setup](docs/lead-capture.md) for the Apps Script receiver, required Cloudflare runtime settings, local development, and live-delivery verification. Run `npm run check` for the production build, API/receiver tests, and desktop/mobile browser suite.

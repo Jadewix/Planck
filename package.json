@@ -13,7 +13,8 @@
     "worker:dev": "npm run build && wrangler dev --ip 0.0.0.0",
     "deploy": "npm run build && wrangler deploy",
     "test": "playwright test",
-    "check": "npm run build && npm test"
+    "check": "npm run build && npm run test:api && npm test",
+    "test:api": "node --test tests/inquiries.test.mjs"
   },
   "devDependencies": {
     "vite": "8.3.4",

@@ -214,9 +214,9 @@
 <span>04 / WHAT’S NEXT?</span>
 </div>
 <h2>Tell us what<br>you have in mind.</h2>
-<p>Email us a few lines about your idea or what needs to change. We’ll arrange a discovery call, then send a quote based on what you need.</p>
-<a class="text-link contact-email" href="mailto:plancksoftware@gmail.com">plancksoftware@gmail.com <b aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14" stroke="currentColor" stroke-width="1.5"/></svg></b>
-</a>
+<p>Tell us what you’re planning. We’ll ask a few questions, then get in touch to arrange a discovery call and prepare a quote.</p>
+<button class="inquiry-cta" type="button" data-open-inquiry hidden>Inquire about a project <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></button>
+<noscript><p>Email your project idea to <a href="mailto:plancksoftware@gmail.com">plancksoftware@gmail.com</a>.</p></noscript>
 </section>
 </main>
 <footer>
@@ -251,9 +251,35 @@
 <section class="study-gallery" hidden aria-label="Project details"></section>
 <section class="study-section"><h3><span>03</span>The outcome</h3><div><dl class="study-metrics" hidden></dl><p data-study-outcome></p></div></section>
 </div>
-<div class="study-footer"><div><p>Have something in mind?</p><a href="mailto:plancksoftware@gmail.com">Let’s talk about your project <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14" stroke="currentColor" stroke-width="1.5"/></svg></a></div><button type="button" data-close-case-study>Back to projects</button></div>
+<div class="study-footer"><div><p>Have something in mind?</p><button class="study-inquiry" type="button" data-open-inquiry hidden>Inquire about a project <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></button></div><button type="button" data-close-case-study>Back to projects</button></div>
 </div>
 </dialog>
 </template>
+
+<dialog class="inquiry-dialog" id="inquiry-dialog" aria-labelledby="inquiry-title">
+<div class="inquiry-toolbar"><span>LET’S TALK ABOUT YOUR PROJECT</span><button type="button" data-close-inquiry aria-label="Close inquiry">Close <span aria-hidden="true">×</span></button></div>
+<div class="inquiry-scroll">
+<div class="inquiry-heading"><h2 id="inquiry-title">What are you planning?</h2><p>A few details will help us prepare for our first conversation.</p></div>
+<ol class="inquiry-progress" aria-label="Inquiry progress"><li aria-current="step">01 Project</li><li>02 Details</li><li>03 Contact</li></ol>
+<form id="inquiry-form" novalidate>
+<fieldset class="inquiry-step" data-step="0"><legend>Choose a project type</legend><div class="project-type-options"></div></fieldset>
+<fieldset class="inquiry-step" data-step="1" hidden disabled><legend>Tell us about the work</legend>
+<label for="project-description">What would you like to build or improve?</label><textarea id="project-description" name="description" required minlength="20" maxlength="4000" rows="4" placeholder="What does your business need, who is it for, and what would a good result look like?"></textarea>
+<div id="project-questions"></div>
+</fieldset>
+<fieldset class="inquiry-step" data-step="2" hidden disabled><legend>How can we reach you?</legend>
+<div class="inquiry-fields"><div><label for="lead-name">Your name</label><input id="lead-name" name="name" autocomplete="name" required minlength="2" maxlength="120"></div><div><label for="lead-email">Work email</label><input id="lead-email" name="email" type="email" autocomplete="email" required maxlength="254"></div></div>
+<label for="lead-company">Company (optional)</label><input id="lead-company" name="company" autocomplete="organization" maxlength="160">
+<div class="inquiry-fields"><div><label for="lead-budget">Budget and currency</label><input id="lead-budget" name="budget" required maxlength="160" placeholder="An estimate, or ‘not sure yet’"></div><div><label for="lead-timeline">Target launch or timeframe</label><input id="lead-timeline" name="timeline" required maxlength="160" placeholder="A date, a timeframe, or flexible"></div></div>
+<label class="inquiry-consent"><input type="checkbox" name="consent" required><span>You can contact me about this project.</span></label>
+<p class="inquiry-data-note">We’ll use these details to respond to your inquiry and discuss your project.</p>
+</fieldset>
+<div class="inquiry-trap" aria-hidden="true"><label>Leave this field empty<input name="companyWebsiteConfirmation" tabindex="-1" autocomplete="off"></label></div>
+<div class="inquiry-error" role="alert" hidden><p></p><a href="mailto:plancksoftware@gmail.com">Or email plancksoftware@gmail.com</a></div>
+<div class="inquiry-form-actions"><button type="button" data-inquiry-back hidden>Back</button><button type="button" data-inquiry-next>Continue <span aria-hidden="true">→</span></button><button type="submit" data-inquiry-submit hidden>Send project inquiry</button></div>
+</form>
+<section class="inquiry-success" hidden tabindex="-1"><span>INQUIRY RECEIVED</span><h3>Thanks for telling us about it.</h3><p>We’ll review what you’ve shared and email you to arrange a discovery call.</p><button type="button" data-close-inquiry>Back to Planck</button></section>
+</div>
+</dialog>
 </body>
 </html>

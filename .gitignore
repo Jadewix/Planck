@@ -8,3 +8,5 @@ dist/
 playwright-report/
 test-results/
 .cache/
+.dev.vars.*
+!.dev.vars.example

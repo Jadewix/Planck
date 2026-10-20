@@ -4,7 +4,14 @@
   "compatibility_date": "2026-10-20",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "404-page"
+    "not_found_handling": "404-page",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*"
+    ]
   },
-  "observability": { "enabled": true }
+  "observability": {
+    "enabled": true
+  },
+  "main": "worker/index.js"
 }
