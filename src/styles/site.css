@@ -571,3 +571,26 @@ header, .hero, .section, .work, .menu { padding-left: var(--gutter); padding-rig
   50% { opacity: .45; transform: scale(1.8); filter: blur(.65px); }
 }
 @media (prefers-reduced-motion: reduce) { .atmosphere-star:nth-child(13n) { animation: none !important; filter: none; } }
+
+/* Mobile-first projects show three portrait screens in phone frames instead of a browser window. */
+.case-phones { isolation: isolate; overflow: visible; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.case-phones::before { content: ''; position: absolute; inset: 12% 8%; z-index: -1; background: radial-gradient(ellipse at center, #9d78b11f, transparent 70%); pointer-events: none; }
+.phone-set { display: flex; justify-content: center; align-items: center; }
+.case-phones .phone-set { padding: 5% 0; }
+.study-cover .phone-set { max-width: 720px; margin: 0 auto; }
+.phone { position: relative; flex: 0 0 30%; container-type: inline-size; border-radius: 15% / 7.2%; background: #0b0b0e; box-shadow: inset 0 0 0 1px #ffffff24, 0 0 0 1px #3a3740, 0 28px 60px -18px #000c; }
+.phone:nth-child(2) { flex-basis: 34%; margin: 0 -1%; z-index: 1; }
+.phone::after { content: ''; position: absolute; top: 6.1cqi; left: 50%; width: 30cqi; height: 8.8cqi; translate: -50% 0; border-radius: 999px; background: #050506; }
+.phone img { display: block; width: calc(100% - 7cqi); height: auto; aspect-ratio: 393 / 852; margin: 3.5cqi; border: 0; border-radius: 11.5cqi; object-fit: cover; object-position: top; background: #17191e; }
+@media (hover: hover) and (pointer: fine) {
+  .phone { transition: translate .45s cubic-bezier(.22, 1, .36, 1); }
+  .phone:nth-child(2) { transition-delay: 40ms; }
+  .phone:nth-child(3) { transition-delay: 80ms; }
+  .case-phones .case-preview:hover img { scale: none; }
+  .case-phones .case-preview:hover .phone { translate: 0 -8px; }
+}
+@media (max-width: 750px) {
+  .phone { flex-basis: 33%; }
+  .phone:nth-child(2) { flex-basis: 38%; margin: 0 -4.5%; }
+}
+@media (prefers-reduced-motion: reduce) { .phone { translate: none !important; } }

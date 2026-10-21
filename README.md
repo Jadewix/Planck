@@ -68,7 +68,7 @@ Cloudflare supplies deployment credentials through its repository integration. D
 ## Motion and content
 
 - Headings and service rows reveal once. They remain visible when scrolling back; there are no competing observers resetting them.
-- Project previews show the complete supplied homepage captures in landscape browser frames. The frames and project names move gently in opposite directions while scrolling, with time-based easing and limited travel. The screenshots remain fitted inside their frames.
+- Project previews show the complete supplied homepage captures in landscape browser frames. Mobile-first projects (Subhouse) show three portrait screens in phone frames instead. The frames and project names move gently in opposite directions while scrolling, with time-based easing and limited travel. The screenshots remain fitted inside their frames.
 - The particle logo is contained in the hero. It stops rendering offscreen and when the tab is hidden, and becomes static when reduced motion is requested.
 - Content remains readable without JavaScript. Reduced-motion preferences are honored at startup and when changed while the page is open.
 - The original designer export is preserved in the first Git commit. Current assets are optimized WebP versions of the supplied homepage screenshots; unused export images were removed from the deployed tree.
@@ -79,7 +79,7 @@ The contact button opens a service-specific project inquiry form. Saving leads t
 
 Every project has a **View case study** button that opens a large card on this page. The green frame control continues to open the project's website in a new tab. For future projects without a website, it can open the case study instead.
 
-All three studies use one shared HTML template and structured content in `src/content/case-studies.js`. The renderer, card styles, keyboard interaction, and section order are shared. Optional metrics and image galleries are omitted when unavailable. Current case studies use the supplied homepage screenshots and confirmed project details.
+All four studies use one shared HTML template and structured content in `src/content/case-studies.js`. The renderer, card styles, keyboard interaction, and section order are shared. Optional metrics and image galleries are omitted when unavailable. Current case studies use the supplied homepage screenshots (Subhouse: its home, cart, and checkout screens) and confirmed project details.
 
 See [the case-study template guide](docs/case-studies.md) for the researched agency references, content schema, instructions for adding a study, and the missing-assets checklist. No separate pages or database are needed. Case-study inquiry buttons open the same project form.
 

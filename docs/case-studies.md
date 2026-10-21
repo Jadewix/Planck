@@ -30,7 +30,7 @@ No fake timeline, technology stack, research phase, design process, testimonial,
 
 Add an object to the exported `caseStudies` array. Follow an existing entry, using a unique URL-safe `id`. Required fields: `id`, `name`, `headline`, `category`, `role`, `deliverable`, `image`, `brief`, `delivery`, `scope`, `outcome`, `metrics`, and `gallery`. `website` may be omitted when there is no public site. `timeline` is optional; do not invent dates or a year.
 
-Each `image` or gallery entry has `{ src, width, height, alt, caption }`. Place local images in `public/images/`, use their actual pixel dimensions, and write captions explaining what the image demonstrates. `metrics` entries have `{ value, label, note }`; use `[]` when no measured outcome is available. `gallery: []` hides the gallery completely.
+Each `image` or gallery entry has `{ src, width, height, alt, caption }`. Place local images in `public/images/`, use their actual pixel dimensions, and write captions explaining what the image demonstrates. For a mobile-first project, `image` can instead be `{ caption, screens }`, where `screens` lists three portrait `{ src, width, height, alt }` captures; the cover then shows them in the same phone frames as the project row. Export phone screens at a 393:852 ratio (for example 786 × 1704) so the frames do not crop them. `metrics` entries have `{ value, label, note }`; use `[]` when no measured outcome is available. `gallery: []` hides the gallery completely.
 
 In the matching `.case-copy`, add:
 
@@ -39,6 +39,8 @@ In the matching `.case-copy`, add:
   data-case-study="project-id" aria-haspopup="dialog"
   aria-controls="case-study-project-id" hidden>View case study</button>
 ```
+
+For a mobile-first project, replace the browser frame in `index.html` with `<div class="case-screen case-phones">` holding one `<a class="case-preview phone-set">` with three `<span class="phone"><img …></span>` screens (see Subhouse). Phone rows have no browser toolbar; the phones themselves link to the website.
 
 The renderer creates the dialog and enables the button. Buttons remain hidden without JavaScript; the portfolio copy and website links remain available. For a project without a website, point its green expand control at `#case-study-project-id` and remove `target="_blank"`. It will open the same card. Keep links to real client websites as normal external links. Do not create separate routes or fabricate a live-site destination.
 
@@ -52,6 +54,7 @@ The initial cards use only confirmed facts and the provided homepage captures. T
 | --- | --- |
 | Fusion | Confirm the comparison baseline for June (+10%) and July (+30%) and any separate order/revenue breakdown; confirm the delivery year for May 1–30; approved store, product variation, inventory and order-management screens. |
 | Vigorfit | Approved booking, coach availability/classes, client-admin, and WhatsApp reminder visuals (current cover is the homepage); delivery year for September 1–25; date and definition of the 50-user/3-coach figures. |
+| Subhouse | Measured results, such as order volume or fewer customization mistakes, with a period and source; approved admin/orders dashboard and WhatsApp ordering visuals for the gallery; a custom domain to replace the Azure address if one is planned. |
 | AITS | Before/after screens or approved Figma exports showing the full-site visual redesign; project dates; specific navigation/UX changes if relevant; client feedback or measured outcomes. Development remains outside Planck's role. |
 | All | Project dates or duration, approved process details, platform/stack where relevant, and client-approved testimonials with attribution if available. |
 

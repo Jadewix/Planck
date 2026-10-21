@@ -7,6 +7,23 @@ function setImage(element, image) {
   element.height = image.height;
 }
 
+/** Mobile-first projects show portrait screens in the same phone frames as their project row. */
+function createPhones(screens) {
+  const set = document.createElement('div');
+  set.className = 'phone-set';
+  screens.forEach((screen) => {
+    const phone = document.createElement('span');
+    const img = document.createElement('img');
+    phone.className = 'phone';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    setImage(img, screen);
+    phone.append(img);
+    set.append(phone);
+  });
+  return set;
+}
+
 /** Render every study from the same template; project facts are kept separately. */
 function renderCaseStudies() {
   const template = document.querySelector('#case-study-template');
@@ -38,7 +55,9 @@ function renderCaseStudies() {
     const website = dialog.querySelector('.study-website');
     if (study.website) website.href = study.website;
     else website.closest('div').hidden = true;
-    setImage(dialog.querySelector('.study-cover img'), study.image);
+    const cover = dialog.querySelector('.study-cover img');
+    if (study.image.screens) cover.replaceWith(createPhones(study.image.screens));
+    else setImage(cover, study.image);
     study.scope.forEach((item) => {
       const li = document.createElement('li');
       li.textContent = item;

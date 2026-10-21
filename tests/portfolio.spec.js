@@ -6,7 +6,7 @@ test('portfolio loads with working assets and no browser errors', async ({ page 
   await page.goto('/');
   await expect(page).toHaveTitle('Planck — Design & Development');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-  await expect(page.locator('.case-row')).toHaveCount(3);
+  await expect(page.locator('.case-row')).toHaveCount(4);
   await expect(page.locator('#contact [data-open-inquiry]')).toBeVisible();
   for (const image of await page.locator('main img').all()) {
     await image.scrollIntoViewIfNeeded();
@@ -49,15 +49,16 @@ test('reveals remain visible on return and project captures stay framed when scr
     await screen.scrollIntoViewIfNeeded();
     await expect(screen).not.toHaveClass(/reveal-pending/);
     await expect(screen).toHaveCSS('opacity', '1');
-    const image = screen.locator('img');
+    const image = screen.locator('img').first();
     await expect.poll(() => image.evaluate((el) => el.complete && el.naturalWidth > 0)).toBe(true);
     const geometry = await image.evaluate((el) => ({
       displayed: el.clientWidth / el.clientHeight,
       original: el.naturalWidth / el.naturalHeight,
       offset: el.getBoundingClientRect().top - el.parentElement.getBoundingClientRect().top,
     }));
-    // The complete landscape capture fits without stretching, cropping, or blank tall frames.
-    expect(geometry.original).toBeGreaterThan(1.7);
+    // Captures fit without stretching, cropping, or blank frames: landscape in browser frames, portrait in phone frames.
+    if (await screen.evaluate((el) => el.matches('.case-phones'))) expect(geometry.original).toBeLessThan(.6);
+    else expect(geometry.original).toBeGreaterThan(1.7);
     expect(geometry.displayed).toBeCloseTo(geometry.original, 1);
     const copy = screen.locator('..').locator('.case-copy');
     await expect.poll(() => copy.evaluate((el) => el.style.translate)).not.toBe('');
@@ -106,7 +107,7 @@ test('content and project links remain available without JavaScript', async ({ b
   await page.goto(baseURL);
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.locator('.services > h2')).toBeVisible();
-  await expect(page.locator('.case-preview')).toHaveCount(3);
+  await expect(page.locator('.case-preview')).toHaveCount(4);
   await context.close();
 });
 
@@ -143,6 +144,27 @@ test('green expand controls open the correct project websites', async ({ page, c
   await project.close();
 });
 
+test('the mobile-first project shows three phone screens that open its website', async ({ page }) => {
+  await page.goto('/');
+  const preview = page.locator('.case-phones .case-preview');
+  await expect(preview).toHaveAttribute('href', 'https://subhouse-bbetayaje6f5fha9.canadacentral-01.azurewebsites.net/');
+  await expect(preview).toHaveAttribute('target', '_blank');
+  await expect(preview.locator('.case-toolbar, .case-expand')).toHaveCount(0);
+  const phones = preview.locator('.phone');
+  await expect(phones).toHaveCount(3);
+  await preview.scrollIntoViewIfNeeded();
+  const boxes = await phones.evaluateAll((elements) => elements.map((el) => el.getBoundingClientRect().toJSON()));
+  // Three frames in a row on every screen size, featuring the middle screen, without leaving the page.
+  expect(boxes[0].left).toBeLessThan(boxes[1].left);
+  expect(boxes[1].left).toBeLessThan(boxes[2].left);
+  expect(boxes[1].height).toBeGreaterThan(boxes[0].height);
+  expect(boxes[0].left).toBeGreaterThanOrEqual(0);
+  expect(boxes[2].right).toBeLessThanOrEqual(await page.evaluate(() => innerWidth));
+  for (const image of await phones.locator('img').all()) {
+    await expect(image).not.toHaveAttribute('alt', '');
+  }
+});
+
 test('a project without a website can open an on-page case-study card', async ({ page }) => {
   await page.goto('/');
   // Case-study content is a test fixture; no fabricated case study ships on the site.
@@ -174,8 +196,8 @@ test('a project without a website can open an on-page case-study card', async ({
 
 test('all project case-study buttons open the shared card with correct scope and content', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('.case-study-trigger')).toHaveCount(3);
-  for (const [index, name] of ['Vigorfit', 'AITS', 'Fusion Piercings'].entries()) {
+  await expect(page.locator('.case-study-trigger')).toHaveCount(4);
+  for (const [index, name] of ['Vigorfit', 'AITS', 'Subhouse', 'Fusion Piercings'].entries()) {
     const trigger = page.locator('.case-study-trigger').nth(index);
     const row = trigger.locator('xpath=ancestor::article');
     await expect(row.locator('.case-preview')).toBeVisible();
@@ -186,7 +208,10 @@ test('all project case-study buttons open the shared card with correct scope and
     await expect(dialog.locator('.study-section h3')).toHaveText(['01The brief', '02What we delivered', '03The outcome']);
     await expect(dialog.locator('.study-scope li')).not.toHaveCount(0);
     await expect(dialog.locator('.study-gallery')).toBeHidden();
-    await expect.poll(() => dialog.locator('.study-cover img').evaluate((el) => el.complete && el.naturalWidth > 0)).toBe(true);
+    await expect(dialog.locator('.study-cover img')).toHaveCount(name === 'Subhouse' ? 3 : 1);
+    for (const image of await dialog.locator('.study-cover img').all()) {
+      await expect.poll(() => image.evaluate((el) => el.complete && el.naturalWidth > 0)).toBe(true);
+    }
     expect(await dialog.locator('.study-scroll').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
     if (name === 'AITS') {
       await expect(dialog.locator('[data-study-role]')).toHaveText('UI/UX design');
@@ -195,8 +220,10 @@ test('all project case-study buttons open the shared card with correct scope and
       await expect(dialog.locator('[data-study-timeline]')).toBeHidden();
     } else {
       await expect(dialog.locator('[data-study-role]')).toHaveText('End-to-end design & development');
-      await expect(dialog.locator('.study-metrics')).toContainText(name === 'Fusion Piercings' ? '+30%' : '50');
-      await expect(dialog.locator('[data-study-timeline]')).toContainText(name === 'Fusion Piercings' ? 'May 1–30' : 'September 1–25');
+      const metric = { Vigorfit: '50', Subhouse: null, 'Fusion Piercings': '+30%' }[name];
+      if (metric) await expect(dialog.locator('.study-metrics')).toContainText(metric);
+      else await expect(dialog.locator('.study-metrics')).toBeHidden();
+      await expect(dialog.locator('[data-study-timeline]')).toContainText({ Vigorfit: 'September 1–25', Subhouse: 'October–November 2025', 'Fusion Piercings': 'May 1–30' }[name]);
     }
     // Tab stays inside the native modal instead of moving to page navigation.
     for (let i = 0; i < 8; i++) {
