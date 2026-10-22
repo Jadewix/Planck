@@ -79,7 +79,7 @@ The contact button opens a service-specific project inquiry form. Saving leads t
 
 Every project has a **View case study** button that opens a large card on this page. The green frame control continues to open the project's website in a new tab. For future projects without a website, it can open the case study instead.
 
-All four studies use one shared HTML template and structured content in `src/content/case-studies.js`. The renderer, card styles, keyboard interaction, and section order are shared. Optional metrics and image galleries are omitted when unavailable. Current case studies use the supplied homepage screenshots (Subhouse: its home, cart, and checkout screens) and confirmed project details.
+All four studies use one shared HTML template and structured content in `src/content/case-studies.js`. The renderer, card styles, keyboard interaction, and section order are shared. Optional metrics and image galleries are omitted when unavailable. Current case studies use the supplied homepage screenshots (Subhouse: its home, cart and checkout, and item customization screens) and confirmed project details.
 
 See [the case-study template guide](docs/case-studies.md) for the researched agency references, content schema, instructions for adding a study, and the missing-assets checklist. No separate pages or database are needed. Case-study inquiry buttons open the same project form.
 

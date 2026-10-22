@@ -144,11 +144,9 @@ test('green expand controls open the correct project websites', async ({ page, c
   await project.close();
 });
 
-test('the mobile-first project shows three phone screens that open its website', async ({ page }) => {
+test('the mobile-first project shows three phone screens that open its case study', async ({ page }) => {
   await page.goto('/');
   const preview = page.locator('.case-phones .case-preview');
-  await expect(preview).toHaveAttribute('href', 'https://subhouse-bbetayaje6f5fha9.canadacentral-01.azurewebsites.net/');
-  await expect(preview).toHaveAttribute('target', '_blank');
   await expect(preview.locator('.case-toolbar, .case-expand')).toHaveCount(0);
   const phones = preview.locator('.phone');
   await expect(phones).toHaveCount(3);
@@ -163,6 +161,15 @@ test('the mobile-first project shows three phone screens that open its website',
   for (const image of await phones.locator('img').all()) {
     await expect(image).not.toHaveAttribute('alt', '');
   }
+  // The project has no live website while it moves hosts, so the phones open its case study.
+  await expect(preview).not.toHaveAttribute('target', /.*/);
+  await preview.click();
+  const dialog = page.getByRole('dialog', { name: 'Subhouse', exact: true });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('.study-website')).toBeHidden();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await expect(preview).toBeFocused();
 });
 
 test('a project without a website can open an on-page case-study card', async ({ page }) => {
