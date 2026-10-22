@@ -41,6 +41,7 @@ export const caseStudies = [
     role: 'End-to-end design & development',
     deliverable: 'Food ordering webapp & admin panel',
     timeline: 'October–November 2025',
+    website: 'https://subhouse.plancksoftware.workers.dev/',
     image: {
       caption: 'The Subhouse home screen, cart and WhatsApp checkout, and item customization on mobile. Design and development by Planck.',
       screens: [

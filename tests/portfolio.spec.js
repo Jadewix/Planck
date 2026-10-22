@@ -144,9 +144,11 @@ test('green expand controls open the correct project websites', async ({ page, c
   await project.close();
 });
 
-test('the mobile-first project shows three phone screens that open its case study', async ({ page }) => {
+test('the mobile-first project shows three phone screens that open its website', async ({ page, context }) => {
   await page.goto('/');
   const preview = page.locator('.case-phones .case-preview');
+  await expect(preview).toHaveAttribute('href', 'https://subhouse.plancksoftware.workers.dev/');
+  await expect(preview).toHaveAttribute('target', '_blank');
   await expect(preview.locator('.case-toolbar, .case-expand')).toHaveCount(0);
   const phones = preview.locator('.phone');
   await expect(phones).toHaveCount(3);
@@ -161,15 +163,13 @@ test('the mobile-first project shows three phone screens that open its case stud
   for (const image of await phones.locator('img').all()) {
     await expect(image).not.toHaveAttribute('alt', '');
   }
-  // The project has no live website while it moves hosts, so the phones open its case study.
-  await expect(preview).not.toHaveAttribute('target', /.*/);
+  // Fulfill the external navigation locally; do not depend on a client's live server.
+  await context.route('https://subhouse.plancksoftware.workers.dev/**', (route) => route.fulfill({ body: '<title>Project website</title>' }));
+  const popup = page.waitForEvent('popup');
   await preview.click();
-  const dialog = page.getByRole('dialog', { name: 'Subhouse', exact: true });
-  await expect(dialog).toBeVisible();
-  await expect(dialog.locator('.study-website')).toBeHidden();
-  await page.keyboard.press('Escape');
-  await expect(dialog).toBeHidden();
-  await expect(preview).toBeFocused();
+  const project = await popup;
+  await expect(project).toHaveURL('https://subhouse.plancksoftware.workers.dev/');
+  await project.close();
 });
 
 test('a project without a website can open an on-page case-study card', async ({ page }) => {
@@ -215,6 +215,7 @@ test('all project case-study buttons open the shared card with correct scope and
     await expect(dialog.locator('.study-section h3')).toHaveText(['01The brief', '02What we delivered', '03The outcome']);
     await expect(dialog.locator('.study-scope li')).not.toHaveCount(0);
     await expect(dialog.locator('.study-gallery')).toBeHidden();
+    await expect(dialog.locator('.study-website')).toHaveAttribute('href', /^https:\/\/[^/]+\/$/);
     await expect(dialog.locator('.study-cover img')).toHaveCount(name === 'Subhouse' ? 3 : 1);
     for (const image of await dialog.locator('.study-cover img').all()) {
       await expect.poll(() => image.evaluate((el) => el.complete && el.naturalWidth > 0)).toBe(true);

@@ -54,7 +54,7 @@ The initial cards use only confirmed facts and the provided homepage captures. T
 | --- | --- |
 | Fusion | Confirm the comparison baseline for June (+10%) and July (+30%) and any separate order/revenue breakdown; confirm the delivery year for May 1–30; approved store, product variation, inventory and order-management screens. |
 | Vigorfit | Approved booking, coach availability/classes, client-admin, and WhatsApp reminder visuals (current cover is the homepage); delivery year for September 1–25; date and definition of the 50-user/3-coach figures. |
-| Subhouse | Measured results, such as order volume or fewer customization mistakes, with a period and source; approved admin/orders dashboard and WhatsApp ordering visuals for the gallery; the new Cloudflare address once the app is live again (Azure hosting stopped, so the phones open the case study and no website link is shown until then); confirm the delivery dates, since the code history is dated April 2026. |
+| Subhouse | Measured results, such as order volume or fewer customization mistakes, with a period and source; approved admin/orders dashboard and WhatsApp ordering visuals for the gallery; confirm the delivery dates, since the code history is dated April 2026. |
 | AITS | Before/after screens or approved Figma exports showing the full-site visual redesign; project dates; specific navigation/UX changes if relevant; client feedback or measured outcomes. Development remains outside Planck's role. |
 | All | Project dates or duration, approved process details, platform/stack where relevant, and client-approved testimonials with attribution if available. |
 
