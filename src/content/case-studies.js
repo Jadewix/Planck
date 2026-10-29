@@ -1,6 +1,29 @@
 /** Confirmed project facts only. See docs/case-studies.md before adding claims. */
 export const caseStudies = [
   {
+    id: 'spotter',
+    name: 'Spotter',
+    headline: 'See how every client is progressing.',
+    category: 'Fitness coaching',
+    role: 'End-to-end design & development',
+    deliverable: 'iOS & Android app',
+    status: 'Coming soon to the App Store and Google Play',
+    image: {
+      caption: 'Spotter on iPhone: a client’s scheduled workouts, weekly progress insights, and the coach’s training and settings menu. Our own product, designed and developed by Planck.',
+      screens: [
+        { src: '/images/spotter-schedule.webp', width: 786, height: 1704, alt: 'Spotter client schedule with upcoming push, pull, chest and back, arms, and legs workouts' },
+        { src: '/images/spotter-insights.webp', width: 786, height: 1704, alt: 'Spotter client insights with the week’s completed workouts and progress for workouts, body weight, steps, and sleep' },
+        { src: '/images/spotter-more.webp', width: 786, height: 1704, alt: 'Spotter coach menu with exercises, library, onboarding, and notifications' },
+      ],
+    },
+    brief: 'Coaches and gyms often don’t know their clients’ current measurements. They can’t easily see whether a client is lifting more over time, or when a client skips a workout.',
+    delivery: 'Spotter is our own product, designed and developed by Planck for iPhone and Android. Coaches plan workouts and routines for each client, and workouts are logged in the app. Spotter keeps each client’s measurements in one place, tracks lifting progress over time, and shows which workouts were completed and which were skipped. Messaging and reminders are built in.',
+    scope: ['UI/UX design & development', 'iOS & Android app', 'Workout & routine planning', 'Workout logging', 'Client measurements', 'Lifting progress tracking', 'Completed & skipped workouts', 'Messaging', 'Reminders'],
+    outcome: 'Spotter is in testing and coming soon to the App Store and Google Play.',
+    metrics: [],
+    gallery: [],
+  },
+  {
     id: 'vigorfit',
     name: 'Vigorfit',
     headline: 'Client management and bookings, in one place.',

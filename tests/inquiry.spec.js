@@ -95,7 +95,7 @@ test('required answers block progress and changing service removes old condition
 
 test('case-study inquiry opens the same form and Escape restores the project trigger', async ({ page }) => {
   await page.goto('/');
-  const studyTrigger = page.locator('.case-study-trigger').first();
+  const studyTrigger = page.locator('[data-case-study="vigorfit"]');
   await studyTrigger.click();
   const study = page.getByRole('dialog', { name: 'Vigorfit', exact: true });
   await study.getByRole('button', { name: 'Let’s talk', exact: true }).click();

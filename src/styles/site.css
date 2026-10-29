@@ -155,6 +155,8 @@ footer { border-top: 1px solid var(--border); margin: 0 var(--gutter); padding: 
 .case-result { margin: 0 0 28px; font-size: 14px; line-height: 1.6; color: #c8c1cc; }
 .case-result strong { color: #efefed; font-size: 20px; font-weight: 400; }
 .case-result small { display: block; margin-top: 4px; color: #96909b; font-size: 11px; }
+.case-status { display: flex; align-items: flex-start; gap: 12px; margin: 0 0 28px; font-size: 14px; line-height: 1.6; color: #c8c1cc; }
+.case-status::before { content: ''; flex: none; width: 7px; height: 7px; margin-top: 8px; border-radius: 50%; background: #c8b9d1; box-shadow: 0 0 0 4px #c8b9d12e; }
 .project-process { list-style: none; margin: 64px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px; }
 .project-process li { border-top: 1px solid var(--border); padding-top: 20px; }
 .project-process h3 { font-size: 23px; letter-spacing: -.025em; margin: 0 0 14px; }

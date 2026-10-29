@@ -16,7 +16,7 @@ These are structural references, not sources for Planck's project claims or imag
 ## Shared structure
 
 1. Project title, short headline, category.
-2. Role, deliverable, delivery dates when confirmed, and live website when available.
+2. Role, deliverable, delivery dates when confirmed, release status for unreleased projects, and live website when available.
 3. A large project screenshot with a factual caption and alt text.
 4. **The brief**: the business need before the engagement.
 5. **What we delivered**: Planck's contribution, followed by a short scope list.
@@ -28,7 +28,7 @@ No fake timeline, technology stack, research phase, design process, testimonial,
 
 ## Add a project
 
-Add an object to the exported `caseStudies` array. Follow an existing entry, using a unique URL-safe `id`. Required fields: `id`, `name`, `headline`, `category`, `role`, `deliverable`, `image`, `brief`, `delivery`, `scope`, `outcome`, `metrics`, and `gallery`. `website` may be omitted when there is no public site. `timeline` is optional; do not invent dates or a year.
+Add an object to the exported `caseStudies` array. Follow an existing entry, using a unique URL-safe `id`. Required fields: `id`, `name`, `headline`, `category`, `role`, `deliverable`, `image`, `brief`, `delivery`, `scope`, `outcome`, `metrics`, and `gallery`. `website` may be omitted when there is no public site. `timeline` is optional; do not invent dates or a year. `status` is optional and only for unreleased work, such as Spotter's “Coming soon to the App Store and Google Play”; it shows as a Status fact in the card. Add a matching `<p class="case-status">` line to the project row, and replace both with the store links once the app is released.
 
 Each `image` or gallery entry has `{ src, width, height, alt, caption }`. Place local images in `public/images/`, use their actual pixel dimensions, and write captions explaining what the image demonstrates. For a mobile-first project, `image` can instead be `{ caption, screens }`, where `screens` lists three portrait `{ src, width, height, alt }` captures; the cover then shows them in the same phone frames as the project row. Export phone screens at a 393:852 ratio (for example 786 × 1704) so the frames do not crop them. `metrics` entries have `{ value, label, note }`; use `[]` when no measured outcome is available. `gallery: []` hides the gallery completely.
 
@@ -40,7 +40,7 @@ In the matching `.case-copy`, add:
   aria-controls="case-study-project-id" hidden>View case study</button>
 ```
 
-For a mobile-first project, replace the browser frame in `index.html` with `<div class="case-screen case-phones">` holding one `<a class="case-preview phone-set">` with three `<span class="phone"><img …></span>` screens (see Subhouse). Phone rows have no browser toolbar; the phones themselves link to the website.
+For a mobile-first project, replace the browser frame in `index.html` with `<div class="case-screen case-phones">` holding one `<a class="case-preview phone-set">` with three `<span class="phone"><img …></span>` screens (see Subhouse). Phone rows have no browser toolbar; the phones themselves link to the website. For a phone row without a website (Spotter), point the phones at `#case-study-project-id` instead, without `target="_blank"`; they open the same card.
 
 The renderer creates the dialog and enables the button. Buttons remain hidden without JavaScript; the portfolio copy and website links remain available. For a project without a website, point its green expand control at `#case-study-project-id` and remove `target="_blank"`. It will open the same card. Keep links to real client websites as normal external links. Do not create separate routes or fabricate a live-site destination.
 
@@ -55,6 +55,7 @@ The initial cards use only confirmed facts and the provided homepage captures. T
 | Fusion | Confirm the comparison baseline for June (+10%) and July (+30%) and any separate order/revenue breakdown; confirm the delivery year for May 1–30; approved store, product variation, inventory and order-management screens. |
 | Vigorfit | Approved booking, coach availability/classes, client-admin, and WhatsApp reminder visuals (current cover is the homepage); delivery year for September 1–25; date and definition of the 50-user/3-coach figures. |
 | Subhouse | Measured results, such as order volume or fewer customization mistakes, with a period and source; approved admin/orders dashboard and WhatsApp ordering visuals for the gallery; confirm the delivery dates, since the code history is dated April 2026. |
+| Spotter | App Store and Google Play links once released; measured results from real use after launch, with a period and source. The current screens show real tester names, so confirm those testers agree, or replace the captures with a demo account. |
 | AITS | Before/after screens or approved Figma exports showing the full-site visual redesign; project dates; specific navigation/UX changes if relevant; client feedback or measured outcomes. Development remains outside Planck's role. |
 | All | Project dates or duration, approved process details, platform/stack where relevant, and client-approved testimonials with attribution if available. |
 

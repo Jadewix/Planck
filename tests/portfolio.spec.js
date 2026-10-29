@@ -6,7 +6,7 @@ test('portfolio loads with working assets and no browser errors', async ({ page 
   await page.goto('/');
   await expect(page).toHaveTitle('Planck — Design & Development');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-  await expect(page.locator('.case-row')).toHaveCount(4);
+  await expect(page.locator('.case-row')).toHaveCount(5);
   await expect(page.locator('#contact [data-open-inquiry]')).toBeVisible();
   for (const image of await page.locator('main img').all()) {
     await image.scrollIntoViewIfNeeded();
@@ -107,7 +107,7 @@ test('content and project links remain available without JavaScript', async ({ b
   await page.goto(baseURL);
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.locator('.services > h2')).toBeVisible();
-  await expect(page.locator('.case-preview')).toHaveCount(4);
+  await expect(page.locator('.case-preview')).toHaveCount(5);
   await context.close();
 });
 
@@ -146,7 +146,7 @@ test('green expand controls open the correct project websites', async ({ page, c
 
 test('the mobile-first project shows three phone screens that open its website', async ({ page, context }) => {
   await page.goto('/');
-  const preview = page.locator('.case-phones .case-preview');
+  const preview = page.locator('.case-phones .case-preview[aria-label="Visit Subhouse"]');
   await expect(preview).toHaveAttribute('href', 'https://subhouse.plancksoftware.workers.dev/');
   await expect(preview).toHaveAttribute('target', '_blank');
   await expect(preview.locator('.case-toolbar, .case-expand')).toHaveCount(0);
@@ -170,6 +170,24 @@ test('the mobile-first project shows three phone screens that open its website',
   const project = await popup;
   await expect(project).toHaveURL('https://subhouse.plancksoftware.workers.dev/');
   await project.close();
+});
+
+test('the unreleased app opens its case study from the phones and shows its status instead of a website', async ({ page }) => {
+  await page.goto('/');
+  const preview = page.locator('.case-phones .case-preview[href="#case-study-spotter"]');
+  await expect(preview).not.toHaveAttribute('target');
+  await expect(preview.locator('.phone img')).toHaveCount(3);
+  await expect(page.locator('.case-row').first().locator('.case-status')).toHaveText('Coming soon to the App Store and Google Play');
+  await preview.click();
+  const dialog = page.getByRole('dialog', { name: 'Spotter', exact: true });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('[data-study-status]')).toBeVisible();
+  await expect(dialog.locator('[data-study-status] dd')).toHaveText('Coming soon to the App Store and Google Play');
+  await expect(dialog.locator('.study-website')).toBeHidden();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await expect(preview).toBeFocused();
+  expect(page.url()).not.toContain('#case-study-spotter');
 });
 
 test('a project without a website can open an on-page case-study card', async ({ page }) => {
@@ -203,8 +221,8 @@ test('a project without a website can open an on-page case-study card', async ({
 
 test('all project case-study buttons open the shared card with correct scope and content', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('.case-study-trigger')).toHaveCount(4);
-  for (const [index, name] of ['Vigorfit', 'AITS', 'Subhouse', 'Fusion Piercings'].entries()) {
+  await expect(page.locator('.case-study-trigger')).toHaveCount(5);
+  for (const [index, name] of ['Spotter', 'Vigorfit', 'AITS', 'Subhouse', 'Fusion Piercings'].entries()) {
     const trigger = page.locator('.case-study-trigger').nth(index);
     const row = trigger.locator('xpath=ancestor::article');
     await expect(row.locator('.case-preview')).toBeVisible();
@@ -215,8 +233,14 @@ test('all project case-study buttons open the shared card with correct scope and
     await expect(dialog.locator('.study-section h3')).toHaveText(['01The brief', '02What we delivered', '03The outcome']);
     await expect(dialog.locator('.study-scope li')).not.toHaveCount(0);
     await expect(dialog.locator('.study-gallery')).toBeHidden();
-    await expect(dialog.locator('.study-website')).toHaveAttribute('href', /^https:\/\/[^/]+\/$/);
-    await expect(dialog.locator('.study-cover img')).toHaveCount(name === 'Subhouse' ? 3 : 1);
+    if (name === 'Spotter') {
+      await expect(dialog.locator('.study-website')).toBeHidden();
+      await expect(dialog.locator('[data-study-status]')).toBeVisible();
+    } else {
+      await expect(dialog.locator('.study-website')).toHaveAttribute('href', /^https:\/\/[^/]+\/$/);
+      await expect(dialog.locator('[data-study-status]')).toBeHidden();
+    }
+    await expect(dialog.locator('.study-cover img')).toHaveCount(['Spotter', 'Subhouse'].includes(name) ? 3 : 1);
     for (const image of await dialog.locator('.study-cover img').all()) {
       await expect.poll(() => image.evaluate((el) => el.complete && el.naturalWidth > 0)).toBe(true);
     }
@@ -228,10 +252,13 @@ test('all project case-study buttons open the shared card with correct scope and
       await expect(dialog.locator('[data-study-timeline]')).toBeHidden();
     } else {
       await expect(dialog.locator('[data-study-role]')).toHaveText('End-to-end design & development');
-      const metric = { Vigorfit: '50', Subhouse: null, 'Fusion Piercings': '+30%' }[name];
+      const metric = { Spotter: null, Vigorfit: '50', Subhouse: null, 'Fusion Piercings': '+30%' }[name];
       if (metric) await expect(dialog.locator('.study-metrics')).toContainText(metric);
       else await expect(dialog.locator('.study-metrics')).toBeHidden();
-      await expect(dialog.locator('[data-study-timeline]')).toContainText({ Vigorfit: 'September 1–25', Subhouse: 'October–November 2025', 'Fusion Piercings': 'May 1–30' }[name]);
+      // An unreleased app has no delivery dates to show.
+      const timeline = { Spotter: null, Vigorfit: 'September 1–25', Subhouse: 'October–November 2025', 'Fusion Piercings': 'May 1–30' }[name];
+      if (timeline) await expect(dialog.locator('[data-study-timeline]')).toContainText(timeline);
+      else await expect(dialog.locator('[data-study-timeline]')).toBeHidden();
     }
     // Tab stays inside the native modal instead of moving to page navigation.
     for (let i = 0; i < 8; i++) {

@@ -52,6 +52,12 @@ function renderCaseStudies() {
       timeline.hidden = false;
       timeline.querySelector('dd').textContent = study.timeline;
     }
+    // Unreleased projects say where they are headed instead of linking to a live site.
+    const status = dialog.querySelector('[data-study-status]');
+    if (study.status) {
+      status.hidden = false;
+      status.querySelector('dd').textContent = study.status;
+    }
     const website = dialog.querySelector('.study-website');
     if (study.website) website.href = study.website;
     else website.closest('div').hidden = true;
@@ -94,11 +100,11 @@ function renderCaseStudies() {
   });
 }
 
-/** Website controls stay native; study buttons and matching fragment links open cards. */
+/** Website controls stay native; study buttons and matching fragment links (expand controls or previews) open cards. */
 export function initProjectCards() {
   renderCaseStudies();
   document.addEventListener('click', (event) => {
-    const trigger = event.target.closest('.case-expand, [data-case-study]');
+    const trigger = event.target.closest('.case-expand, .case-preview, [data-case-study]');
     if (!trigger || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const href = trigger.getAttribute('href');
     const id = trigger.dataset.caseStudy ? `case-study-${trigger.dataset.caseStudy}` : href?.startsWith('#') ? href.slice(1) : null;
